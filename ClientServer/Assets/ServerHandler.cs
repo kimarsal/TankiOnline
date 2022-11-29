@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class ServerHandler : MonoBehaviour
 {
     public bool test = false;
+    public ServerScript serverScript;
     private NetworkHelper networkHelper;
 
     private void Start()
@@ -46,11 +47,29 @@ public class ServerHandler : MonoBehaviour
     private void ReceiveMessage(string message, int from)
     {
         // Do things here
+        string op = message.Substring(0, 3);
+        switch(op){
+            case "CTA":
+                serverScript.ReceiveSendTank(message, from);
+                break;
+            case "CTE":
+                serverScript.ReceiveTeam(message, from);
+                break;
+            case "ENT":
+                serverScript.EnviaINF();
+                break;
+        }
+        
+        
+        
+
         // Example: Print message on chat
         GameObject.FindWithTag("Chat").GetComponent<ChatController>().AddChatToChatOutput(from + " -> " + message);
 
         // Example: relay all messages
         SendToAllExcept(from + " -> " + message, from);
+
+        
     }
 
     public void SendToClient(int id, string message)
@@ -66,6 +85,7 @@ public class ServerHandler : MonoBehaviour
     public void SendToAll(string message)
     {
         networkHelper.SendToAll(message);
+
     }
 
 }
