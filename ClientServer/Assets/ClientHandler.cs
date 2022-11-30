@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class ClientHandler : MonoBehaviour
 {
+    public ClientScript clientScript;
     public bool test = false;
     private NetworkHelper networkHelper;
 
@@ -32,9 +33,42 @@ public class ClientHandler : MonoBehaviour
     private void ReceiveMessage(string message)
     {
         // Do things here
+        string op = message.Substring(0, 3);
+        int team, tank;
+        switch (op)
+        {
+            case "INF":
+                int playersOnTeam1 = 0, playersOnTeam2 = 0;
+                bool[] takenTanks = new bool[4];
+                for(int i = 0; i < 4; i++)
+                {
+                    team = int.Parse(message.Substring(3 + i * 2, 1));
+                    tank = int.Parse(message.Substring(4 + i * 2, 1));
+                    if (team != 0)
+                    {
+                        if (team == 1) playersOnTeam1++;
+                        else playersOnTeam2++;
+
+                        if (tank != 0)
+                        {
+                            takenTanks[tank - 1] = true;
+                        }
+                    }
+                    clientScript.SetTeams(playersOnTeam1, playersOnTeam2, takenTanks);
+                }
+                break;
+            case "CTE":
+                team = int.Parse(message.Substring(3, 1));
+                clientScript.TeamIsChosen(team);
+                break;
+            case "CTA":
+                tank = int.Parse(message.Substring(3, 1));
+                clientScript.TankIsChosen(tank);
+                break;
+        }
 
         // Example: Print message on chat
-        GameObject.FindWithTag("Chat").GetComponent<ChatController>().AddChatToChatOutput(message);
+        //GameObject.FindWithTag("Chat").GetComponent<ChatController>().AddChatToChatOutput(message);
     }
 
     public void SendToServer(string message)
