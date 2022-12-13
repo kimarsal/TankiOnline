@@ -13,7 +13,7 @@ public class ServerScript : MonoBehaviour
     }
     
     public bool ChooseTeam(string message, int from){
-        int team = int.Parse(message.Substring(3, 4));
+        int team = int.Parse(message.Substring(3, 1));
         if (team == 1 && playersOnTeam1 < 2){
             playersOnTeam1++;
             players.Add(new PlayerScript(from, team));
@@ -28,7 +28,7 @@ public class ServerScript : MonoBehaviour
     }
 
     public bool ChooseTank(string message, int from){
-        int tank = int.Parse(message.Substring(3, 4));
+        int tank = int.Parse(message.Substring(3, 1));
         foreach(PlayerScript p in players)
         {
             if (p.TankId == tank) return false;

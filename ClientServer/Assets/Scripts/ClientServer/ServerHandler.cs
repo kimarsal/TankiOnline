@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,10 +11,9 @@ public class ServerHandler : MonoBehaviour
 
     private ChatController chatController;
 
-    private void Start()
+    private void Awake()
     {
         DontDestroyOnLoad(this);
-        chatController = GameObject.FindWithTag("Chat").GetComponent<ChatController>();
     }
 
     public bool StartServer(int localPort)
@@ -49,6 +47,15 @@ public class ServerHandler : MonoBehaviour
     {
     }
 
+    private void WriteOnChat(string message)
+    {
+        if(chatController == null)
+        {
+            chatController = GameObject.FindWithTag("Chat").GetComponent<ChatController>();
+        }
+        chatController.AddChatToChatOutput(message);
+    }
+
     private void ReceiveMessage(string message, int from)
     {
         // Do things here
@@ -59,7 +66,7 @@ public class ServerHandler : MonoBehaviour
                 {
                     SendToAllExcept(message, from);
                     SendToClient(from, "YOK");
-                    chatController.AddChatToChatOutput("Player " + from + " joined team " + message.Substring(3, 4));
+                    WriteOnChat("Player " + from + " joined team " + message.Substring(3, 4));
                 }
                 else
                 {
@@ -71,7 +78,7 @@ public class ServerHandler : MonoBehaviour
                 {
                     SendToAllExcept(message, from);
                     SendToClient(from, "YOK");
-                    chatController.AddChatToChatOutput("Player " + from + " chose tank " + message.Substring(3, 4));
+                    WriteOnChat("Player " + from + " chose tank " + message.Substring(3, 4));
                 }
                 else
                 {
