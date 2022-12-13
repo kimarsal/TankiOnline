@@ -37,7 +37,7 @@ public class ClientHandler : MonoBehaviour
         int team, tank;
         switch (op)
         {
-            case "INF":
+            case "INF": //ex: INF12110000
                 int playersOnTeam1 = 0, playersOnTeam2 = 0;
                 bool[] takenTanks = new bool[4];
                 for(int i = 0; i < 4; i++)
@@ -54,14 +54,14 @@ public class ClientHandler : MonoBehaviour
                             takenTanks[tank - 1] = true;
                         }
                     }
-                    clientScript.SetTeams(playersOnTeam1, playersOnTeam2, takenTanks);
                 }
+                clientScript.SetTeams(playersOnTeam1, playersOnTeam2, takenTanks);
                 break;
-            case "CTE":
+            case "CTE": //ex: CTE1
                 team = int.Parse(message.Substring(3, 1));
                 clientScript.TeamIsChosen(team);
                 break;
-            case "CTA":
+            case "CTA": //ex: CTA1
                 tank = int.Parse(message.Substring(3, 1));
                 clientScript.TankIsChosen(tank);
                 break;

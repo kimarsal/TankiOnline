@@ -9,9 +9,12 @@ public class ServerHandler : MonoBehaviour
     public ServerScript serverScript;
     private NetworkHelper networkHelper;
 
+    private ChatController chatController;
+
     private void Start()
     {
         DontDestroyOnLoad(this);
+        chatController = GameObject.FindWithTag("Chat").GetComponent<ChatController>();
     }
 
     public bool StartServer(int localPort)
@@ -38,6 +41,7 @@ public class ServerHandler : MonoBehaviour
 
     private void ClientConnected(int id)
     {
+        serverScript.EnviaINF(id);
     }
 
     private void ClientDisconnected(int arg0)
@@ -49,27 +53,22 @@ public class ServerHandler : MonoBehaviour
         // Do things here
         string op = message.Substring(0, 3);
         switch(op){
-            case "CTA":
-                serverScript.ReceiveSendTank(message, from);
+            case "CTE": //ex: CTE1
+                serverScript.ChooseTeam(message, from);
+                chatController.AddChatToChatOutput("Player " + from + " joined team " + message.Substring(3, 4));
                 break;
-            case "CTE":
-                serverScript.ReceiveTeam(message, from);
-                break;
-            case "ENT":
-                serverScript.EnviaINF();
+            case "CTA": //ex: CTA1
+                serverScript.ChooseTank(message, from);
+                chatController.AddChatToChatOutput("Player " + from + " chose tank " + message.Substring(3, 4));
                 break;
         }
         
-        
-        
-
         // Example: Print message on chat
-        GameObject.FindWithTag("Chat").GetComponent<ChatController>().AddChatToChatOutput(from + " -> " + message);
+        //GameObject.FindWithTag("Chat").GetComponent<ChatController>().AddChatToChatOutput(from + " -> " + message);
 
         // Example: relay all messages
-        SendToAllExcept(from + " -> " + message, from);
+        //SendToAllExcept(from + " -> " + message, from);
 
-        
     }
 
     public void SendToClient(int id, string message)

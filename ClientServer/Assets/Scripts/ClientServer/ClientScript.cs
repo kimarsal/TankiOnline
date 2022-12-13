@@ -25,8 +25,6 @@ public class ClientScript : MonoBehaviour
         chooseTeamContainer.SetActive(true);
         chooseTankContainer.SetActive(false);
         waitingForPlayersText.SetActive(false);
-
-        clientHandler.SendToServer("ENT");
     }
 
     public void SetTeams(int playersOnTeam1, int playersOnTeam2, bool[] takenTanks)
@@ -45,10 +43,10 @@ public class ClientScript : MonoBehaviour
     private void UpdateTeamButtons()
     {
         teamButtons[0].GetComponentInChildren<TextMeshProUGUI>().text = "Team 1\n("+playersOnTeam1+"/2)";
-        teamButtons[0].enabled = playersOnTeam1 < 2;
+        teamButtons[0].interactable = playersOnTeam1 < 2;
 
         teamButtons[1].GetComponentInChildren<TextMeshProUGUI>().text = "Team 2\n(" + playersOnTeam2 + "/2)";
-        teamButtons[1].enabled = playersOnTeam2 < 2;
+        teamButtons[1].interactable = playersOnTeam2 < 2;
     }
 
     public void ChooseTeam(int team)
@@ -74,7 +72,7 @@ public class ClientScript : MonoBehaviour
 
     public void TankIsChosen(int tank)
     {
-        tankButtons[tank - 1].enabled = false;
+        tankButtons[tank - 1].interactable = false;
     }
 
     
