@@ -36,7 +36,7 @@ public class ClientHandler : MonoBehaviour
         string op = message.Substring(0, 3);
         switch (op)
         {
-            case "INF": //ex: INF12110000
+            case "INF":
                 clientScript.ReceiveInfo(message);
                 break;
             case "CTE": //ex: CTE1
@@ -52,6 +52,15 @@ public class ClientHandler : MonoBehaviour
                 break;
             case "NOK":
                 clientScript.OkOrNot(false);
+                break;
+            case "POS":
+                clientScript.MovePlayer(message);
+                break;
+            case "ROB":
+                clientScript.RotatePlayerBase(message);
+                break;
+            case "ROT":
+                clientScript.RotatePlayerTurret(message);
                 break;
         }
 

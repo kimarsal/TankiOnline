@@ -32,7 +32,7 @@ public class ClientScript : MonoBehaviour
         clientState = ClientState.ChoosingTeam;
     }
 
-    public void ReceiveInfo(string message)
+    public void ReceiveInfo(string message) //ex: INF12110000
     {
         for (int i = 0; i < 4; i++)
         {
@@ -128,5 +128,30 @@ public class ClientScript : MonoBehaviour
         }
     }
 
-    
+    public void MovePlayer(string message) //ex: POS0+5.00-8.00
+    {
+        int player = int.Parse(message.Substring(3, 1));
+        float x = float.Parse(message.Substring(4, 5));
+        float y = float.Parse(message.Substring(9, 5));
+
+        players.Find(players => players.Id == player).SetPosition(x, y);
+    }
+
+    public void RotatePlayerBase(string message) //ex: ROB0180
+    {
+        int player = int.Parse(message.Substring(3, 1));
+        int angle = int.Parse(message.Substring(4, 3));
+
+        players.Find(players => players.Id == player).SetBaseAngle(angle);
+    }
+
+    public void RotatePlayerTurret(string message) //ex: ROT0180
+    {
+        int player = int.Parse(message.Substring(3, 1));
+        int angle = int.Parse(message.Substring(4, 3));
+
+        players.Find(players => players.Id == player).SetTurretAngle(angle);
+    }
+
+
 }

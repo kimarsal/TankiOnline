@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -41,7 +42,7 @@ public class ServerHandler : MonoBehaviour
 
     private void ClientConnected(int id)
     {
-        serverScript.SendInfo(id);
+        SendToClient(id, serverScript.GetInfo());
     }
 
     private void ClientDisconnected(int arg0)
@@ -77,6 +78,10 @@ public class ServerHandler : MonoBehaviour
                     SendToClient(from, "NOK");
                 }
                 break;
+            case "POS": case "ROB": case "ROT":
+                SendToAllExcept(message, from);
+                break;
+
         }
         
         // Example: Print message on chat

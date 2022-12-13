@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class ServerScript : MonoBehaviour
 {
-    public ServerHandler serverHandler;
     public List<PlayerScript> players = new List<PlayerScript>();
     public int playersOnTeam1 = 0;
     public int playersOnTeam2 = 0;
 
     private void Start(){
-        serverHandler = GameObject.FindGameObjectWithTag("Handler").GetComponent<ServerHandler>();
-        serverHandler.serverScript = this;
+        GameObject.FindGameObjectWithTag("Handler").GetComponent<ServerHandler>().serverScript = this;
     }
     
     public bool ChooseTeam(string message, int from){
@@ -40,7 +38,7 @@ public class ServerScript : MonoBehaviour
         return true;
     }
 
-    public void SendInfo(int id){
+    public string GetInfo(){
         string message = "INF";
         for(int i = 0; i < players.Count; i++){
             message += players[i].TeamId;
@@ -50,7 +48,7 @@ public class ServerScript : MonoBehaviour
             message += "0";
             message += "0";
         }
-        serverHandler.SendToClient(id, message);
+        return message;
     }
 
     
