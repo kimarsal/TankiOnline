@@ -34,36 +34,24 @@ public class ClientHandler : MonoBehaviour
     {
         // Do things here
         string op = message.Substring(0, 3);
-        int team, tank;
         switch (op)
         {
             case "INF": //ex: INF12110000
-                int playersOnTeam1 = 0, playersOnTeam2 = 0;
-                bool[] takenTanks = new bool[4];
-                for(int i = 0; i < 4; i++)
-                {
-                    team = int.Parse(message.Substring(3 + i * 2, 1));
-                    tank = int.Parse(message.Substring(4 + i * 2, 1));
-                    if (team != 0)
-                    {
-                        if (team == 1) playersOnTeam1++;
-                        else playersOnTeam2++;
-
-                        if (tank != 0)
-                        {
-                            takenTanks[tank - 1] = true;
-                        }
-                    }
-                }
-                clientScript.SetTeams(playersOnTeam1, playersOnTeam2, takenTanks);
+                clientScript.ReceiveInfo(message);
                 break;
             case "CTE": //ex: CTE1
-                team = int.Parse(message.Substring(3, 1));
+                int team = int.Parse(message.Substring(3, 1));
                 clientScript.TeamIsChosen(team);
                 break;
             case "CTA": //ex: CTA1
-                tank = int.Parse(message.Substring(3, 1));
+                int tank = int.Parse(message.Substring(3, 1));
                 clientScript.TankIsChosen(tank);
+                break;
+            case "YOK":
+                clientScript.OkOrNot(true);
+                break;
+            case "NOK":
+                clientScript.OkOrNot(false);
                 break;
         }
 

@@ -8,12 +8,12 @@ public class PlayerScript : MonoBehaviour
     public int TeamId = 0;
     public int Id = 0;   
 
-    public PlayerScript(int id, int n){
+    public PlayerScript(int id, int team){
         Id = id;
-        TeamId = n;
+        TeamId = team;
     } 
 
-    public void JugadorScriptTankId(int n){
-        TankId = n;
+    public void SetTank(int tank){
+        TankId = tank;
     }
 }

@@ -41,7 +41,7 @@ public class ServerHandler : MonoBehaviour
 
     private void ClientConnected(int id)
     {
-        serverScript.EnviaINF(id);
+        serverScript.SendInfo(id);
     }
 
     private void ClientDisconnected(int arg0)
@@ -54,12 +54,28 @@ public class ServerHandler : MonoBehaviour
         string op = message.Substring(0, 3);
         switch(op){
             case "CTE": //ex: CTE1
-                serverScript.ChooseTeam(message, from);
-                chatController.AddChatToChatOutput("Player " + from + " joined team " + message.Substring(3, 4));
+                if (serverScript.ChooseTeam(message, from))
+                {
+                    SendToAllExcept(message, from);
+                    SendToClient(from, "YOK");
+                    chatController.AddChatToChatOutput("Player " + from + " joined team " + message.Substring(3, 4));
+                }
+                else
+                {
+                    SendToClient(from, "NOK");
+                }
                 break;
             case "CTA": //ex: CTA1
-                serverScript.ChooseTank(message, from);
-                chatController.AddChatToChatOutput("Player " + from + " chose tank " + message.Substring(3, 4));
+                if (serverScript.ChooseTank(message, from))
+                {
+                    SendToAllExcept(message, from);
+                    SendToClient(from, "YOK");
+                    chatController.AddChatToChatOutput("Player " + from + " chose tank " + message.Substring(3, 4));
+                }
+                else
+                {
+                    SendToClient(from, "NOK");
+                }
                 break;
         }
         

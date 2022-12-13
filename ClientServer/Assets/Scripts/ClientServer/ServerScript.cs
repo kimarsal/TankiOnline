@@ -14,26 +14,33 @@ public class ServerScript : MonoBehaviour
         serverHandler.serverScript = this;
     }
     
-    public void ChooseTeam(string message, int from){
+    public bool ChooseTeam(string message, int from){
         int team = int.Parse(message.Substring(3, 4));
-        if (team == 1){
+        if (team == 1 && playersOnTeam1 < 2){
             playersOnTeam1++;
+            players.Add(new PlayerScript(from, team));
+            return true;
         }
-        else if(team == 2){
+        else if(team == 2 && playersOnTeam2 < 2){
             playersOnTeam2++;
+            players.Add(new PlayerScript(from, team));
+            return true;
         }
-        players.Add(new PlayerScript(from, team));
-        serverHandler.SendToAllExcept(message, from);
+        return false;
     }
 
-    public void ChooseTank(string message, int from){
+    public bool ChooseTank(string message, int from){
         int tank = int.Parse(message.Substring(3, 4));
+        foreach(PlayerScript p in players)
+        {
+            if (p.TankId == tank) return false;
+        }
         PlayerScript player = players.Find(players => players.Id == from);
-        player.JugadorScriptTankId(tank);
-        serverHandler.SendToAllExcept(message, from);
+        player.SetTank(tank);
+        return true;
     }
 
-    public void EnviaINF(int id){
+    public void SendInfo(int id){
         string message = "INF";
         for(int i = 0; i < players.Count; i++){
             message += players[i].TeamId;
