@@ -40,11 +40,13 @@ public class ServerHandler : MonoBehaviour
 
     private void ClientConnected(int id)
     {
+        WriteOnChat("Client " + id + " connected");
         SendToClient(id, serverScript.GetInfo());
     }
 
-    private void ClientDisconnected(int arg0)
+    private void ClientDisconnected(int id)
     {
+        WriteOnChat("Client " + id + " disconnected");
     }
 
     private void WriteOnChat(string message)
@@ -66,23 +68,25 @@ public class ServerHandler : MonoBehaviour
                 {
                     SendToAllExcept(message, from);
                     SendToClient(from, "YOK");
-                    WriteOnChat("Player " + from + " joined team " + message.Substring(3, 4));
+                    WriteOnChat("Player " + from + " joined team " + message.Substring(3, 1));
                 }
                 else
                 {
                     SendToClient(from, "NOK");
+                    WriteOnChat("Player " + from + " could not join team " + message.Substring(3, 1));
                 }
                 break;
-            case "CTA": //ex: CTA1
+            case "CTA": //ex: CTA11
                 if (serverScript.ChooseTank(message, from))
                 {
                     SendToAllExcept(message, from);
                     SendToClient(from, "YOK");
-                    WriteOnChat("Player " + from + " chose tank " + message.Substring(3, 4));
+                    WriteOnChat("Player " + from + " chose tank " + message.Substring(4, 1));
                 }
                 else
                 {
                     SendToClient(from, "NOK");
+                    WriteOnChat("Player " + from + " could not choose tank " + message.Substring(4, 1));
                 }
                 break;
             case "POS": case "ROB": case "ROT":

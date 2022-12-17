@@ -27,14 +27,14 @@ public class ServerScript : MonoBehaviour
         return false;
     }
 
-    public bool ChooseTank(string message, int from){
-        int tank = int.Parse(message.Substring(3, 1));
+    public bool ChooseTank(string message, int from)
+    {
+        int tank = int.Parse(message.Substring(4, 1));
         foreach(PlayerScript p in players)
         {
             if (p.TankId == tank) return false;
         }
-        PlayerScript player = players.Find(players => players.Id == from);
-        player.SetTank(tank);
+        players[from - 1].SetTank(tank);
         return true;
     }
 

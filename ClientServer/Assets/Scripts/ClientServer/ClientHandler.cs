@@ -43,9 +43,10 @@ public class ClientHandler : MonoBehaviour
                 int team = int.Parse(message.Substring(3, 1));
                 clientScript.TeamIsChosen(team);
                 break;
-            case "CTA": //ex: CTA1
-                int tank = int.Parse(message.Substring(3, 1));
-                clientScript.TankIsChosen(tank);
+            case "CTA": //ex: CTA11
+                int player = int.Parse(message.Substring(3, 1));
+                int tank = int.Parse(message.Substring(4, 1));
+                clientScript.TankIsChosen(player, tank);
                 break;
             case "YOK":
                 clientScript.OkOrNot(true);

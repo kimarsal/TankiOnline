@@ -7,17 +7,31 @@ using UnityEngine.UI;
 public class ClientScript : MonoBehaviour
 {
     private ClientHandler clientHandler;
+
     public GameObject chooseTeamContainer;
     public GameObject chooseTankContainer;
     public GameObject waitingForPlayersText;
+    public GameObject gameIsFullText;
+    public GameObject startGameText;
+
     public Button[] teamButtons;
     public Button[] tankButtons;
     public List<PlayerScript> players = new List<PlayerScript>();
+    public Transform[] team1Spawns;
+    public Transform[] team2Spawns;
+    public GameObject[] tankPrefabs;
 
     private int playersOnTeam1;
     private int playersOnTeam2;
+    private int chosenTanks;
+    private bool isTeam1Spawn1Taken;
+    private bool isTeam2Spawn1Taken;
 
-    private enum ClientState { ChoosingTeam, ChoosingTank, Playing };
+    private int playerId;
+    private int selectedTeam;
+    private int selectedTank;
+
+    private enum ClientState { ChoosingTeam, ChoosingTank, Waiting, Playing };
     private ClientState clientState;
 
     private void Start()
@@ -28,6 +42,8 @@ public class ClientScript : MonoBehaviour
         chooseTeamContainer.SetActive(true);
         chooseTankContainer.SetActive(false);
         waitingForPlayersText.SetActive(false);
+        gameIsFullText.SetActive(false);
+        startGameText.SetActive(false);
 
         clientState = ClientState.ChoosingTeam;
     }
@@ -42,18 +58,29 @@ public class ClientScript : MonoBehaviour
             {
                 if (team == 1) playersOnTeam1++;
                 else playersOnTeam2++;
-                players.Add(new PlayerScript(i, team));
+                players.Add(new PlayerScript(i + 1, team));
 
                 if (tank != 0)
                 {
-                    PlayerScript player = players.Find(players => players.Id == i);
-                    player.SetTank(tank);
-                    tankButtons[i - 1].interactable = false;
+                    players[i].SetTank(tank);
+                    tankButtons[tank - 1].interactable = false;
+                    Instantiate(tankPrefabs[tank - 1], team == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]);
+                    if (team == 1) isTeam1Spawn1Taken = true;
+                    else isTeam2Spawn1Taken = true;
+                    chosenTanks++;
                 }
             }
         }
 
-        UpdateTeamButtons();
+        if (chosenTanks == 4)
+        {
+            chooseTeamContainer.SetActive(false);
+            gameIsFullText.SetActive(true);
+        }
+        else
+        {
+            UpdateTeamButtons();
+        }
     }
 
     private void UpdateTeamButtons()
@@ -67,9 +94,10 @@ public class ClientScript : MonoBehaviour
 
     public void ChooseTeam(int team)
     {
+        selectedTeam = team;
         teamButtons[0].enabled = false;
         teamButtons[1].enabled = false;
-        clientHandler.SendToServer("CTE" + (team));
+        clientHandler.SendToServer("CTE" + team.ToString());
     }
 
     public void TeamIsChosen(int team)
@@ -81,16 +109,36 @@ public class ClientScript : MonoBehaviour
 
     public void ChooseTank(int tank)
     {
+        selectedTank = tank;
         tankButtons[0].enabled = false;
         tankButtons[1].enabled = false;
         tankButtons[2].enabled = false;
         tankButtons[3].enabled = false;
-        clientHandler.SendToServer("CTA" + (tank));
+        clientHandler.SendToServer("CTA" + playerId.ToString() + tank.ToString());
     }
 
-    public void TankIsChosen(int tank)
+    public void TankIsChosen(int player, int tank)
     {
         tankButtons[tank - 1].interactable = false;
+        players[player - 1].SetTank(tank);
+        Instantiate(tankPrefabs[tank - 1], players[player - 1].TeamId == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]);
+        if (players[player - 1].TeamId == 1) isTeam1Spawn1Taken = true;
+        else isTeam2Spawn1Taken = true;
+        chosenTanks++;
+        if(chosenTanks == 4)
+        {
+            if (clientState == ClientState.Waiting)
+            {
+                StartGame();
+            }
+            else
+            {
+                if (clientState == ClientState.ChoosingTeam) chooseTeamContainer.SetActive(false);
+                else //ChoosingTank
+                    chooseTankContainer.SetActive(false);
+                gameIsFullText.SetActive(true);
+            }
+        }
     }
 
     public void OkOrNot(bool ok)
@@ -100,6 +148,8 @@ public class ClientScript : MonoBehaviour
             case ClientState.ChoosingTeam:
                 if (ok)
                 {
+                    playerId = playersOnTeam1 + playersOnTeam2 + 1;
+                    players.Add(new PlayerScript(playerId, selectedTeam));
                     chooseTeamContainer.SetActive(false);
                     chooseTankContainer.SetActive(true);
                     clientState = ClientState.ChoosingTank;
@@ -113,9 +163,22 @@ public class ClientScript : MonoBehaviour
             case ClientState.ChoosingTank:
                 if (ok)
                 {
+                    players[playerId - 1].SetTank(selectedTank);
+                    Instantiate(tankPrefabs[selectedTank - 1], selectedTeam == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]);
+                    if (players[playerId - 1].TeamId == 1) isTeam1Spawn1Taken = true;
+                    else isTeam2Spawn1Taken = true;
+                    chosenTanks++;
                     chooseTankContainer.SetActive(false);
-                    waitingForPlayersText.SetActive(true);
-                    clientState = ClientState.Playing;
+
+                    if(chosenTanks == 4)
+                    {
+                        StartGame();
+                    }
+                    else
+                    {
+                        waitingForPlayersText.SetActive(true);
+                        clientState = ClientState.Waiting;
+                    }
                 }
                 else
                 {
@@ -128,13 +191,19 @@ public class ClientScript : MonoBehaviour
         }
     }
 
+    private void StartGame()
+    {
+        clientState = ClientState.Playing;
+        startGameText.SetActive(true);
+    }
+
     public void MovePlayer(string message) //ex: POS0+5.00-8.00
     {
         int player = int.Parse(message.Substring(3, 1));
         float x = float.Parse(message.Substring(4, 5));
         float y = float.Parse(message.Substring(9, 5));
 
-        players.Find(players => players.Id == player).SetPosition(x, y);
+        players[player - 1].SetPosition(x, y);
     }
 
     public void RotatePlayerBase(string message) //ex: ROB0180
@@ -142,7 +211,7 @@ public class ClientScript : MonoBehaviour
         int player = int.Parse(message.Substring(3, 1));
         int angle = int.Parse(message.Substring(4, 3));
 
-        players.Find(players => players.Id == player).SetBaseAngle(angle);
+        players[player - 1].SetBaseAngle(angle);
     }
 
     public void RotatePlayerTurret(string message) //ex: ROT0180
@@ -150,7 +219,7 @@ public class ClientScript : MonoBehaviour
         int player = int.Parse(message.Substring(3, 1));
         int angle = int.Parse(message.Substring(4, 3));
 
-        players.Find(players => players.Id == player).SetTurretAngle(angle);
+        players[player - 1].SetTurretAngle(angle);
     }
 
 
