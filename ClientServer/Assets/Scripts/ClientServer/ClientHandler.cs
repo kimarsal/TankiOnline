@@ -39,7 +39,7 @@ public class ClientHandler : MonoBehaviour
             case "INF":
                 clientScript.ReceiveInfo(message);
                 break;
-            case "CTE": //ex: CTE1
+            case "CTE": //ex: CTE11
                 int team = int.Parse(message.Substring(3, 1));
                 clientScript.TeamIsChosen(team);
                 break;

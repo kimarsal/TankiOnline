@@ -13,9 +13,10 @@ public class ClientScript : MonoBehaviour
     public GameObject waitingForPlayersText;
     public GameObject gameIsFullText;
     public GameObject startGameText;
-
     public Button[] teamButtons;
     public Button[] tankButtons;
+
+    public Dictionary<int, PlayerInput> playerInputs = new Dictionary<int, PlayerInput>();
     public List<PlayerScript> players = new List<PlayerScript>();
     public Transform[] team1Spawns;
     public Transform[] team2Spawns;
@@ -34,6 +35,8 @@ public class ClientScript : MonoBehaviour
     private enum ClientState { ChoosingTeam, ChoosingTank, Waiting, Playing };
     private ClientState clientState;
 
+    private bool hasGameStarted = true;
+
     private void Start()
     {
         clientHandler = GameObject.FindGameObjectWithTag("Handler").GetComponent<ClientHandler>();
@@ -48,12 +51,53 @@ public class ClientScript : MonoBehaviour
         clientState = ClientState.ChoosingTeam;
     }
 
+    private void Update()
+    {
+        if (hasGameStarted)
+        {
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                clientHandler.SendToServer("KYDW");
+            }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                clientHandler.SendToServer("KYDA");
+            }
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                clientHandler.SendToServer("KYDS");
+            }
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                clientHandler.SendToServer("KYDD");
+            }
+
+            if (Input.GetKeyUp(KeyCode.W))
+            {
+                clientHandler.SendToServer("KYUW");
+            }
+            if (Input.GetKeyUp(KeyCode.A))
+            {
+                clientHandler.SendToServer("KYUA");
+            }
+            if (Input.GetKeyUp(KeyCode.S))
+            {
+                clientHandler.SendToServer("KYUS");
+            }
+            if (Input.GetKeyUp(KeyCode.D))
+            {
+                clientHandler.SendToServer("KYUD");
+            }
+        }
+    }
+
     public void ReceiveInfo(string message) //ex: INF12110000
     {
+        playerId = int.Parse(message.Substring(3, 1));
         for (int i = 0; i < 4; i++)
         {
-            int team = int.Parse(message.Substring(3 + i * 2, 1));
-            int tank = int.Parse(message.Substring(4 + i * 2, 1));
+            int team = int.Parse(message.Substring(4 + i * 2, 1));
+            int tank = int.Parse(message.Substring(5 + i * 2, 1));
             if (team != 0)
             {
                 AddPlayer(team);
@@ -138,7 +182,7 @@ public class ClientScript : MonoBehaviour
     {
         tankButtons[tank - 1].interactable = false;
         players[player - 1].SetTank(tank);
-        Instantiate(tankPrefabs[tank - 1], players[player - 1].TeamId == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]);
+        playerInputs[player] = Instantiate(tankPrefabs[tank - 1], players[player - 1].TeamId == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]).GetComponent<PlayerInput>();
         if (players[player - 1].TeamId == 1) isTeam1Spawn1Taken = true;
         else isTeam2Spawn1Taken = true;
         chosenTanks++;
@@ -151,7 +195,6 @@ public class ClientScript : MonoBehaviour
             case ClientState.ChoosingTeam:
                 if (ok)
                 {
-                    playerId = playersOnTeam1 + playersOnTeam2 + 1;
                     AddPlayer(selectedTeam);
                     chooseTeamContainer.SetActive(false);
                     chooseTankContainer.SetActive(true);
@@ -192,6 +235,7 @@ public class ClientScript : MonoBehaviour
 
     private void StartGame()
     {
+        hasGameStarted = true;
         clientState = ClientState.Playing;
         waitingForPlayersText.SetActive(false);
         startGameText.SetActive(true);
@@ -203,6 +247,7 @@ public class ClientScript : MonoBehaviour
         float x = float.Parse(message.Substring(4, 5));
         float y = float.Parse(message.Substring(9, 5));
 
+        playerInputs[player].transform.GetChild(0).position = new Vector2(x, y);
         players[player - 1].SetPosition(x, y);
     }
 

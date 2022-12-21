@@ -13,6 +13,8 @@ public class PlayerInput : MonoBehaviour
     public UnityEvent<Vector2> OnMoveBody = new UnityEvent<Vector2>();
     public UnityEvent<Vector2> OnMoveTurret = new UnityEvent<Vector2>();
 
+    public bool canItMove = true;
+
     private void Awake()
     {
         if (mainCamera == null)
@@ -51,6 +53,11 @@ public class PlayerInput : MonoBehaviour
     private void GetBodyMovement()
     {
         Vector2 movementVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        OnMoveBody?.Invoke(movementVector.normalized);
+    }
+
+    public void GetBodyMovement(Vector2 movementVector)
+    {
         OnMoveBody?.Invoke(movementVector.normalized);
     }
 }

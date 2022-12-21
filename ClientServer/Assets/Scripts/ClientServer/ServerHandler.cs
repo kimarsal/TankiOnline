@@ -41,7 +41,7 @@ public class ServerHandler : MonoBehaviour
     private void ClientConnected(int id)
     {
         WriteOnChat("Client " + id + " connected");
-        SendToClient(id, serverScript.GetInfo());
+        SendToClient(id, serverScript.GetInfo(id));
     }
 
     private void ClientDisconnected(int id)
@@ -63,7 +63,7 @@ public class ServerHandler : MonoBehaviour
         // Do things here
         string op = message.Substring(0, 3);
         switch(op){
-            case "CTE": //ex: CTE1
+            case "CTE": //ex: CTE11
                 if (serverScript.ChooseTeam(message, from))
                 {
                     SendToAllExcept(message, from);
@@ -89,6 +89,8 @@ public class ServerHandler : MonoBehaviour
                     WriteOnChat("Player " + from + " could not choose tank " + message.Substring(4, 1));
                 }
                 break;
+            case "KYD": serverScript.ChangeKeyState(from, message.Substring(3, 1), true); WriteOnChat("Player " + from + " started pressing " + message.Substring(3, 1)); break;
+            case "KYU": serverScript.ChangeKeyState(from, message.Substring(3, 1), false); WriteOnChat("Player " + from + " stopped pressing " + message.Substring(3, 1)); break;
             case "POS": case "ROB": case "ROT":
                 SendToAllExcept(message, from);
                 break;
