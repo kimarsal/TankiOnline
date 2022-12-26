@@ -34,17 +34,19 @@ public class ClientHandler : MonoBehaviour
     {
         // Do things here
         string op = message.Substring(0, 3);
+        int player;
         switch (op)
         {
             case "INF":
                 clientScript.ReceiveInfo(message);
                 break;
             case "CTE": //ex: CTE11
-                int team = int.Parse(message.Substring(3, 1));
-                clientScript.TeamIsChosen(team);
+                player = int.Parse(message.Substring(3, 1));
+                int team = int.Parse(message.Substring(4, 1));
+                clientScript.TeamIsChosen(player, team);
                 break;
             case "CTA": //ex: CTA11
-                int player = int.Parse(message.Substring(3, 1));
+                player = int.Parse(message.Substring(3, 1));
                 int tank = int.Parse(message.Substring(4, 1));
                 clientScript.TankIsChosen(player, tank);
                 break;
@@ -54,7 +56,10 @@ public class ClientHandler : MonoBehaviour
             case "NOK":
                 clientScript.OkOrNot(false);
                 break;
-            case "POS":
+            case "UPD":
+                clientScript.UpdateGame(message);
+                break;
+            /*case "POS":
                 clientScript.MovePlayer(message);
                 break;
             case "ROB":
@@ -62,7 +67,7 @@ public class ClientHandler : MonoBehaviour
                 break;
             case "ROT":
                 clientScript.RotatePlayerTurret(message);
-                break;
+                break;*/
         }
 
         // Example: Print message on chat

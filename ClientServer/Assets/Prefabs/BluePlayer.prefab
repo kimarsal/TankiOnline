@@ -31,7 +31,7 @@ Transform:
   m_Children:
   - {fileID: 3348838727776533599}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3348838727119411944
 MonoBehaviour:
@@ -46,6 +46,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 0}
+  tankBase: {fileID: 3348838727776533599}
+  tankTurret: {fileID: 3348838727846777755}
   OnShoot:
     m_PersistentCalls:
       m_Calls:
@@ -91,6 +93,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  canItMove: 1
 --- !u!1 &3348838727155903923
 GameObject:
   m_ObjectHideFlags: 0

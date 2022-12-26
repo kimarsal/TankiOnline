@@ -17,7 +17,7 @@ public class ClientScript : MonoBehaviour
     public Button[] tankButtons;
 
     public Dictionary<int, PlayerInput> playerInputs = new Dictionary<int, PlayerInput>();
-    public List<PlayerScript> players = new List<PlayerScript>();
+    public Dictionary<int, PlayerScript> players = new Dictionary<int, PlayerScript>();
     public Transform[] team1Spawns;
     public Transform[] team2Spawns;
     public GameObject[] tankPrefabs;
@@ -36,6 +36,9 @@ public class ClientScript : MonoBehaviour
     private ClientState clientState;
 
     private bool hasGameStarted = true;
+    private float timeSinceLastUpdate = 0f;
+
+    #region Lobby
 
     private void Start()
     {
@@ -51,47 +54,7 @@ public class ClientScript : MonoBehaviour
         clientState = ClientState.ChoosingTeam;
     }
 
-    private void Update()
-    {
-        if (hasGameStarted)
-        {
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                clientHandler.SendToServer("KYDW");
-            }
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                clientHandler.SendToServer("KYDA");
-            }
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                clientHandler.SendToServer("KYDS");
-            }
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-                clientHandler.SendToServer("KYDD");
-            }
-
-            if (Input.GetKeyUp(KeyCode.W))
-            {
-                clientHandler.SendToServer("KYUW");
-            }
-            if (Input.GetKeyUp(KeyCode.A))
-            {
-                clientHandler.SendToServer("KYUA");
-            }
-            if (Input.GetKeyUp(KeyCode.S))
-            {
-                clientHandler.SendToServer("KYUS");
-            }
-            if (Input.GetKeyUp(KeyCode.D))
-            {
-                clientHandler.SendToServer("KYUD");
-            }
-        }
-    }
-
-    public void ReceiveInfo(string message) //ex: INF12110000
+    public void ReceiveInfo(string message) //ex: INF312110000
     {
         playerId = int.Parse(message.Substring(3, 1));
         for (int i = 0; i < 4; i++)
@@ -100,7 +63,7 @@ public class ClientScript : MonoBehaviour
             int tank = int.Parse(message.Substring(5 + i * 2, 1));
             if (team != 0)
             {
-                AddPlayer(team);
+                AddPlayer(i + 1, team);
 
                 if (tank != 0)
                 {
@@ -134,12 +97,12 @@ public class ClientScript : MonoBehaviour
         selectedTeam = team;
         teamButtons[0].enabled = false;
         teamButtons[1].enabled = false;
-        clientHandler.SendToServer("CTE" + team.ToString());
+        clientHandler.SendToServer("CTE" + playerId.ToString() + team.ToString());
     }
 
-    public void TeamIsChosen(int team)
+    public void TeamIsChosen(int player, int team)
     {
-        AddPlayer(team);
+        AddPlayer(player, team);
         UpdateTeamButtons();
     }
 
@@ -171,19 +134,19 @@ public class ClientScript : MonoBehaviour
         }
     }
 
-    private void AddPlayer(int team)
+    private void AddPlayer(int player, int team)
     {
+        players.Add(player, new PlayerScript(team));
         if (team == 1) playersOnTeam1++;
         else playersOnTeam2++;
-        players.Add(new PlayerScript(players.Count, team));
     }
 
     private void AddTank(int player, int tank)
     {
         tankButtons[tank - 1].interactable = false;
-        players[player - 1].SetTank(tank);
-        playerInputs[player] = Instantiate(tankPrefabs[tank - 1], players[player - 1].TeamId == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]).GetComponent<PlayerInput>();
-        if (players[player - 1].TeamId == 1) isTeam1Spawn1Taken = true;
+        players[player].SetTank(tank);
+        playerInputs.Add(player, Instantiate(tankPrefabs[tank - 1], players[player].TeamId == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]).GetComponent<PlayerInput>());
+        if (players[player].TeamId == 1) isTeam1Spawn1Taken = true;
         else isTeam2Spawn1Taken = true;
         chosenTanks++;
     }
@@ -195,7 +158,7 @@ public class ClientScript : MonoBehaviour
             case ClientState.ChoosingTeam:
                 if (ok)
                 {
-                    AddPlayer(selectedTeam);
+                    AddPlayer(playerId, selectedTeam);
                     chooseTeamContainer.SetActive(false);
                     chooseTankContainer.SetActive(true);
                     clientState = ClientState.ChoosingTank;
@@ -241,7 +204,92 @@ public class ClientScript : MonoBehaviour
         startGameText.SetActive(true);
     }
 
-    public void MovePlayer(string message) //ex: POS1+5.00-8.00
+    #endregion
+
+    #region Game
+
+    private void Update()
+    {
+        if (hasGameStarted)
+        {
+            MoveTanks();
+            CheckForKeys();
+        }
+    }
+
+    private void MoveTanks()
+    {
+        timeSinceLastUpdate += Time.deltaTime;
+        for (int i = 1; i <= 4; i++)
+        {
+            if (playerInputs.ContainsKey(i))
+            {
+                playerInputs[i].tankBase.position = players[i].Position;
+                playerInputs[i].tankBase.rotation = Quaternion.Euler(0, 0, players[i].BaseAngle);
+                playerInputs[i].tankTurret.rotation = Quaternion.Euler(0, 0, players[i].TurretAngle);
+            }
+        }
+    }
+
+    private void CheckForKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            clientHandler.SendToServer("KYDW");
+        }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            clientHandler.SendToServer("KYDA");
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            clientHandler.SendToServer("KYDS");
+        }
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            clientHandler.SendToServer("KYDD");
+        }
+
+        if (Input.GetKeyUp(KeyCode.W))
+        {
+            clientHandler.SendToServer("KYUW");
+        }
+        if (Input.GetKeyUp(KeyCode.A))
+        {
+            clientHandler.SendToServer("KYUA");
+        }
+        if (Input.GetKeyUp(KeyCode.S))
+        {
+            clientHandler.SendToServer("KYUS");
+        }
+        if (Input.GetKeyUp(KeyCode.D))
+        {
+            clientHandler.SendToServer("KYUD");
+        }
+    }
+
+    public void UpdateGame(string message) //UPD+0.00-0.00180180...
+    {
+        timeSinceLastUpdate = 0;
+        for(int i = 0; i < 4; i++)
+        {
+            if (players.ContainsKey(i + 1))
+            {
+                float x = float.Parse(message.Substring(3 + i * 16, 5));
+                float y = float.Parse(message.Substring(8 + i * 16, 5));
+                players[i + 1].Position = new Vector2(x, y);
+
+                float baseAngle = float.Parse(message.Substring(13 + i * 16, 3));
+                players[i + 1].BaseAngle = baseAngle;
+                float turretAngle = float.Parse(message.Substring(16 + i * 16, 3));
+                players[i + 1].TurretAngle = turretAngle;
+            }
+        }
+    }
+
+    #endregion
+
+    /*public void MovePlayer(string message) //ex: POS1+5.00-8.00
     {
         int player = int.Parse(message.Substring(3, 1));
         float x = float.Parse(message.Substring(4, 5));
@@ -265,7 +313,7 @@ public class ClientScript : MonoBehaviour
         int angle = int.Parse(message.Substring(4, 3));
 
         players[player - 1].SetTurretAngle(angle);
-    }
+    }*/
 
 
 }

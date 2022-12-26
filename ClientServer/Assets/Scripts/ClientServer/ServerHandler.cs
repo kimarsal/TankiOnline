@@ -68,12 +68,12 @@ public class ServerHandler : MonoBehaviour
                 {
                     SendToAllExcept(message, from);
                     SendToClient(from, "YOK");
-                    WriteOnChat("Player " + from + " joined team " + message.Substring(3, 1));
+                    WriteOnChat("Player " + from + " joined team " + message.Substring(4, 1));
                 }
                 else
                 {
                     SendToClient(from, "NOK");
-                    WriteOnChat("Player " + from + " could not join team " + message.Substring(3, 1));
+                    WriteOnChat("Player " + from + " could not join team " + message.Substring(4, 1));
                 }
                 break;
             case "CTA": //ex: CTA11
@@ -89,10 +89,10 @@ public class ServerHandler : MonoBehaviour
                     WriteOnChat("Player " + from + " could not choose tank " + message.Substring(4, 1));
                 }
                 break;
-            case "KYD": serverScript.ChangeKeyState(from, message.Substring(3, 1), true); WriteOnChat("Player " + from + " started pressing " + message.Substring(3, 1)); break;
-            case "KYU": serverScript.ChangeKeyState(from, message.Substring(3, 1), false); WriteOnChat("Player " + from + " stopped pressing " + message.Substring(3, 1)); break;
-            case "POS": case "ROB": case "ROT":
-                SendToAllExcept(message, from);
+            case "KYD": serverScript.ChangeKeyState(from, message.Substring(3, 1), true); break;
+            case "KYU": serverScript.ChangeKeyState(from, message.Substring(3, 1), false); break;
+            /*case "POS": case "ROB": case "ROT":
+                SendToAllExcept(message, from);*/
                 break;
 
         }

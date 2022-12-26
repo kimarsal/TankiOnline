@@ -8,6 +8,8 @@ public class PlayerInput : MonoBehaviour
 {
     [SerializeField]
     private Camera mainCamera;
+    public Transform tankBase;
+    public Transform tankTurret;
 
     public UnityEvent OnShoot = new UnityEvent();
     public UnityEvent<Vector2> OnMoveBody = new UnityEvent<Vector2>();
@@ -24,9 +26,9 @@ public class PlayerInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GetBodyMovement();
+        /*GetBodyMovement();
         GetTurretMovement();
-        GetShootingInput();
+        GetShootingInput();*/
     }
 
     private void GetShootingInput()

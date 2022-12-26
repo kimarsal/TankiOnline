@@ -6,7 +6,7 @@ public class ServerScript : MonoBehaviour
 {
     private ServerHandler serverHandler;
 
-    public List<PlayerScript> players = new List<PlayerScript>();
+    public Dictionary<int, PlayerScript> players = new Dictionary<int, PlayerScript>();
     public Dictionary<int, PlayerInput> playerInputs = new Dictionary<int, PlayerInput>();
     public int playersOnTeam1 = 0;
     public int playersOnTeam2 = 0;
@@ -14,9 +14,11 @@ public class ServerScript : MonoBehaviour
     public Transform[] team1Spawns;
     public Transform[] team2Spawns;
     public GameObject[] tankPrefabs;
+
     private bool isTeam1Spawn1Taken;
     private bool isTeam2Spawn1Taken;
     private Dictionary<int, Dictionary<string, bool>> playerKeys;
+    private float timeSinceLastUpdate = 0f;
 
     private void Start(){
         serverHandler = GameObject.FindGameObjectWithTag("Handler").GetComponent<ServerHandler>();
@@ -34,6 +36,13 @@ public class ServerScript : MonoBehaviour
 
     private void Update()
     {
+        timeSinceLastUpdate += Time.deltaTime;
+        if(timeSinceLastUpdate > 0.5f)
+        {
+            timeSinceLastUpdate = 0f;
+            UpdateGame();
+        }
+
         int horizontal = 0, vertical = 0;
         for (int i = 1; i <= 4; i++)
         {
@@ -53,34 +62,50 @@ public class ServerScript : MonoBehaviour
             {
                 horizontal++;
             }
-            if (playerInputs.ContainsKey(i))
+            if (playerInputs.ContainsKey(i)) //Prescindible en el joc final
             {
                 playerInputs[i].GetBodyMovement(new Vector2(horizontal, vertical));
-                if (horizontal != 0 || vertical != 0)
-                {
-                    Vector2 pos = playerInputs[i].transform.GetChild(0).position;
-                    string message = "POS" + i;
-                    message += pos.x < 0 ? "-" : "+";
-                    message += Mathf.Abs(pos.x).ToString("F2");
-                    message += pos.y < 0 ? "-" : "+";
-                    message += Mathf.Abs(pos.y).ToString("F2");
-                    serverHandler.SendToAll(message);
-                }
             }
             horizontal = vertical = 0;
         }
     }
 
+    private void UpdateGame()
+    {
+        string message = "UPD";
+        for (int i = 1; i <= 4; i++)
+        {
+            if (playerInputs.ContainsKey(i)) //Prescindible en el joc final
+            {
+                Vector2 pos = playerInputs[i].tankBase.position;
+                message += pos.x < 0 ? "-" : "+";
+                message += Mathf.Abs(pos.x).ToString("F2");
+                message += pos.y < 0 ? "-" : "+";
+                message += Mathf.Abs(pos.y).ToString("F2");
+
+                float angleBase = playerInputs[i].tankBase.rotation.eulerAngles.z % 360;
+                message += Mathf.FloorToInt(angleBase).ToString().PadLeft(3, '0');
+                float angleTurret = playerInputs[i].tankTurret.rotation.eulerAngles.z % 360;
+                message += Mathf.FloorToInt(angleTurret).ToString().PadLeft(3, '0');
+            }
+            else
+            {
+                message += "+0.00+0.00000000";
+            }
+        }
+        serverHandler.SendToAll(message);
+    }
+
     public bool ChooseTeam(string message, int from){
-        int team = int.Parse(message.Substring(3, 1));
+        int team = int.Parse(message.Substring(4, 1));
         if (team == 1 && playersOnTeam1 < 2){
             playersOnTeam1++;
-            players.Add(new PlayerScript(from, team));
+            players.Add(from, new PlayerScript(team));
             return true;
         }
         else if(team == 2 && playersOnTeam2 < 2){
             playersOnTeam2++;
-            players.Add(new PlayerScript(from, team));
+            players.Add(from, new PlayerScript(team));
             return true;
         }
         return false;
@@ -89,26 +114,29 @@ public class ServerScript : MonoBehaviour
     public bool ChooseTank(string message, int from)
     {
         int tank = int.Parse(message.Substring(4, 1));
-        foreach(PlayerScript p in players)
+        foreach(KeyValuePair<int, PlayerScript> p in players)
         {
-            if (p.TankId == tank) return false;
+            if (p.Value.TankId == tank) return false;
         }
-        players[from - 1].SetTank(tank);
-        playerInputs[from] = Instantiate(tankPrefabs[tank - 1], players[from - 1].TeamId == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]).GetComponent<PlayerInput>();
-        if (players[from - 1].TeamId == 1) isTeam1Spawn1Taken = true;
+        players[from].SetTank(tank);
+        playerInputs.Add(from, Instantiate(tankPrefabs[tank - 1], players[from].TeamId == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]).GetComponent<PlayerInput>());
+        if (players[from].TeamId == 1) isTeam1Spawn1Taken = true;
         else isTeam2Spawn1Taken = true;
         return true;
     }
 
     public string GetInfo(int id){
         string message = "INF" + id.ToString();
-        for(int i = 0; i < players.Count; i++){
-            message += players[i].TeamId;
-            message += players[i].TankId;
-        }
-        for(int i = players.Count-1; i < 4; i++){
-            message += "0";
-            message += "0";
+        for(int i = 1; i <= 4; i++){
+            if (players.ContainsKey(i))
+            {
+                message += players[i].TeamId;
+                message += players[i].TankId;
+            }
+            else
+            {
+                message += "00";
+            }
         }
         return message;
     }
