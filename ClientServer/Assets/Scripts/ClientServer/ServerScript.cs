@@ -37,7 +37,7 @@ public class ServerScript : MonoBehaviour
     private void Update()
     {
         timeSinceLastUpdate += Time.deltaTime;
-        if(timeSinceLastUpdate > 0.5f)
+        if(timeSinceLastUpdate > 0.05f)
         {
             timeSinceLastUpdate = 0f;
             UpdateGame();
@@ -141,11 +141,16 @@ public class ServerScript : MonoBehaviour
         return message;
     }
 
-    public void ChangeKeyState(int clientId, string key, bool pressed)
+    public void ChangeKeyState(int from, string key, bool pressed)
     {
-        playerKeys[clientId][key] = pressed;
+        playerKeys[from][key] = pressed;
     }
 
-    
+    public void MoveMouseCursor(int from, string message)
+    {
+        float x = float.Parse(message.Substring(3, 5));
+        float y = float.Parse(message.Substring(8, 5));
+        playerInputs[from].GetTurretMovement(new Vector2(x, y));
+    }
 
 }

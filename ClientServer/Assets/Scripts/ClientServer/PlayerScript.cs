@@ -6,31 +6,22 @@ public class PlayerScript : MonoBehaviour
 {
     public int TankId = 0;
     public int TeamId = 0;
-    
-    public Vector2 Position;
-    public float BaseAngle;
-    public float TurretAngle;
 
-    public PlayerScript(int team){
+    public Vector2 PreviousPosition;
+    public float PreviousBaseAngle;
+    public float PreviousTurretAngle;
+
+    public Vector2 FuturePosition;
+    public float FutureBaseAngle;
+    public float FutureTurretAngle;
+
+    public PlayerScript(int team)
+    {
         TeamId = team;
-    } 
+    }
 
-    public void SetTank(int tank){
+    public void SetTank(int tank)
+    {
         TankId = tank;
-    }
-
-    public void SetPosition(float x, float y)
-    {
-        Position = new Vector2(x, y);
-    }
-
-    public void SetBaseAngle(float angle)
-    {
-        BaseAngle = angle;
-    }
-
-    public void SetTurretAngle(float angle)
-    {
-        TurretAngle = angle;
     }
 }

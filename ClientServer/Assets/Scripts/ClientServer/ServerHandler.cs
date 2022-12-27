@@ -91,9 +91,10 @@ public class ServerHandler : MonoBehaviour
                 break;
             case "KYD": serverScript.ChangeKeyState(from, message.Substring(3, 1), true); break;
             case "KYU": serverScript.ChangeKeyState(from, message.Substring(3, 1), false); break;
-            /*case "POS": case "ROB": case "ROT":
-                SendToAllExcept(message, from);*/
-                break;
+            case "MMC": serverScript.MoveMouseCursor(from, message); break;
+                /*case "POS": case "ROB": case "ROT":
+                    SendToAllExcept(message, from);
+                    break;*/
 
         }
         

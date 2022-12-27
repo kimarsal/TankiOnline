@@ -44,7 +44,7 @@ public class PlayerInput : MonoBehaviour
         OnMoveTurret?.Invoke(GetMousePositon());
     }
 
-    private Vector2 GetMousePositon()
+    public Vector2 GetMousePositon()
     {
         Vector3 mousePosition = Input.mousePosition;
         mousePosition.z = mainCamera.nearClipPlane;
@@ -56,6 +56,11 @@ public class PlayerInput : MonoBehaviour
     {
         Vector2 movementVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         OnMoveBody?.Invoke(movementVector.normalized);
+    }
+
+    public void GetTurretMovement(Vector2 mousePosition)
+    {
+        OnMoveTurret?.Invoke(mousePosition);
     }
 
     public void GetBodyMovement(Vector2 movementVector)

@@ -37,6 +37,10 @@ public class ClientScript : MonoBehaviour
 
     private bool hasGameStarted = true;
     private float timeSinceLastUpdate = 0f;
+    private float updateDuration = 0f;
+
+    private float timeSinceLastMouseUpdate = 0f;
+    private Vector2 lastUpdatedMousePosition = Vector2.zero;
 
     #region Lobby
 
@@ -220,13 +224,15 @@ public class ClientScript : MonoBehaviour
     private void MoveTanks()
     {
         timeSinceLastUpdate += Time.deltaTime;
+        timeSinceLastMouseUpdate += Time.deltaTime;
+        float percentageComplete = timeSinceLastUpdate / updateDuration;
         for (int i = 1; i <= 4; i++)
         {
             if (playerInputs.ContainsKey(i))
             {
-                playerInputs[i].tankBase.position = players[i].Position;
-                playerInputs[i].tankBase.rotation = Quaternion.Euler(0, 0, players[i].BaseAngle);
-                playerInputs[i].tankTurret.rotation = Quaternion.Euler(0, 0, players[i].TurretAngle);
+                playerInputs[i].tankBase.position = Vector3.Lerp(players[i].PreviousPosition, players[i].FuturePosition, percentageComplete);
+                playerInputs[i].tankBase.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousBaseAngle, players[i].FutureBaseAngle, percentageComplete));
+                playerInputs[i].tankTurret.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousTurretAngle, players[i].FutureTurretAngle, percentageComplete));
             }
         }
     }
@@ -266,23 +272,42 @@ public class ClientScript : MonoBehaviour
         {
             clientHandler.SendToServer("KYUD");
         }
+
+        if (timeSinceLastMouseUpdate > 0.1f && playerInputs.ContainsKey(playerId) && (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0))
+        {
+            timeSinceLastMouseUpdate = 0f;
+            Vector2 pos = playerInputs[playerId].GetMousePositon();
+            string message = "MMC";
+            message += pos.x < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.x).ToString("F2");
+            message += pos.y < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.y).ToString("F2");
+            clientHandler.SendToServer(message);
+        }
     }
 
     public void UpdateGame(string message) //UPD+0.00-0.00180180...
     {
+        updateDuration = timeSinceLastUpdate;
         timeSinceLastUpdate = 0;
         for(int i = 0; i < 4; i++)
         {
-            if (players.ContainsKey(i + 1))
+            if (playerInputs.ContainsKey(i + 1))
             {
                 float x = float.Parse(message.Substring(3 + i * 16, 5));
                 float y = float.Parse(message.Substring(8 + i * 16, 5));
-                players[i + 1].Position = new Vector2(x, y);
+                playerInputs[i + 1].tankBase.position = players[i + 1].PreviousPosition = players[i + 1].FuturePosition;
+                players[i + 1].FuturePosition = new Vector2(x, y);
 
                 float baseAngle = float.Parse(message.Substring(13 + i * 16, 3));
-                players[i + 1].BaseAngle = baseAngle;
+                players[i + 1].PreviousBaseAngle = players[i + 1].FutureBaseAngle;
+                players[i + 1].FutureBaseAngle = baseAngle;
+                playerInputs[i + 1].tankBase.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousBaseAngle);
+
                 float turretAngle = float.Parse(message.Substring(16 + i * 16, 3));
-                players[i + 1].TurretAngle = turretAngle;
+                players[i + 1].PreviousTurretAngle = players[i + 1].FutureTurretAngle;
+                players[i + 1].FutureTurretAngle = turretAngle;
+                playerInputs[i + 1].tankTurret.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousTurretAngle);
             }
         }
     }
