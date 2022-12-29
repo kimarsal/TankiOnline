@@ -18,12 +18,18 @@ public class ServerScript : MonoBehaviour
     private bool isTeam1Spawn1Taken;
     private bool isTeam2Spawn1Taken;
     private Dictionary<int, Dictionary<string, bool>> playerKeys;
+    private Dictionary<int, Vector2> playerMouseCursorPositions;
+    public List<Bullet> bulletList;
     private float timeSinceLastUpdate = 0f;
 
-    private void Start(){
+    private void Start()
+    {
         serverHandler = GameObject.FindGameObjectWithTag("Handler").GetComponent<ServerHandler>();
         serverHandler.serverScript = this;
+
         playerKeys = new Dictionary<int, Dictionary<string, bool>>();
+        playerMouseCursorPositions = new Dictionary<int, Vector2>();
+
         for (int i = 1; i <= 4; i++)
         {
             playerKeys.Add(i, new Dictionary<string, bool>());
@@ -31,7 +37,11 @@ public class ServerScript : MonoBehaviour
             playerKeys[i].Add("A", false);
             playerKeys[i].Add("S", false);
             playerKeys[i].Add("D", false);
+
+            playerMouseCursorPositions.Add(i, Vector2.zero);
         }
+
+        bulletList = new List<Bullet>();
     }
 
     private void Update()
@@ -40,7 +50,8 @@ public class ServerScript : MonoBehaviour
         if(timeSinceLastUpdate > 0.05f)
         {
             timeSinceLastUpdate = 0f;
-            UpdateGame();
+            UpdateTanks();
+            UpdateBullets();
         }
 
         int horizontal = 0, vertical = 0;
@@ -65,23 +76,29 @@ public class ServerScript : MonoBehaviour
             if (playerInputs.ContainsKey(i)) //Prescindible en el joc final
             {
                 playerInputs[i].GetBodyMovement(new Vector2(horizontal, vertical));
+                playerInputs[i].GetTurretMovement(playerMouseCursorPositions[i]);
             }
             horizontal = vertical = 0;
         }
+
+        for(int i = 0; i < bulletList.Count; i++)
+        {
+            bulletList[i].transform.Translate(bulletList[i].transform.up * bulletList[i].speed * Time.deltaTime);
+        }
     }
 
-    private void UpdateGame()
+    private void UpdateTanks()
     {
-        string message = "UPD";
+        string message = "UDT";
         for (int i = 1; i <= 4; i++)
         {
             if (playerInputs.ContainsKey(i)) //Prescindible en el joc final
             {
                 Vector2 pos = playerInputs[i].tankBase.position;
                 message += pos.x < 0 ? "-" : "+";
-                message += Mathf.Abs(pos.x).ToString("F2");
+                message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
                 message += pos.y < 0 ? "-" : "+";
-                message += Mathf.Abs(pos.y).ToString("F2");
+                message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
 
                 float angleBase = playerInputs[i].tankBase.rotation.eulerAngles.z % 360;
                 message += Mathf.FloorToInt(angleBase).ToString().PadLeft(3, '0');
@@ -90,10 +107,27 @@ public class ServerScript : MonoBehaviour
             }
             else
             {
-                message += "+0.00+0.00000000";
+                message += "+00.00+00.00000000";
             }
         }
         serverHandler.SendToAll(message);
+    }
+
+    public void UpdateBullets()
+    {
+        string message = "UDB";
+        for (int i = 0; i < bulletList.Count; i++)
+        {
+            Vector2 pos = bulletList[i].transform.position;
+            message += pos.x < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
+            message += pos.y < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
+
+            float angle = bulletList[i].transform.rotation.eulerAngles.z % 360;
+            message += Mathf.FloorToInt(angle).ToString().PadLeft(3, '0');
+        }
+        if(bulletList.Count > 0) serverHandler.SendToAll(message);
     }
 
     public bool ChooseTeam(string message, int from){
@@ -148,9 +182,18 @@ public class ServerScript : MonoBehaviour
 
     public void MoveMouseCursor(int from, string message)
     {
-        float x = float.Parse(message.Substring(3, 5));
-        float y = float.Parse(message.Substring(8, 5));
-        playerInputs[from].GetTurretMovement(new Vector2(x, y));
+        float x = float.Parse(message.Substring(3, 6));
+        float y = float.Parse(message.Substring(9, 6));
+        playerMouseCursorPositions[from] = new Vector2(x, y);
+    }
+
+    public void Shoot(int from)
+    {
+        if (playerInputs.ContainsKey(from))
+        {
+            playerInputs[from].Shoot();
+            serverHandler.SendToAll("TSH" + from.ToString());
+        }
     }
 
 }

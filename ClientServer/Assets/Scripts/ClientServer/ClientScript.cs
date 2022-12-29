@@ -21,6 +21,7 @@ public class ClientScript : MonoBehaviour
     public Transform[] team1Spawns;
     public Transform[] team2Spawns;
     public GameObject[] tankPrefabs;
+    public GameObject[] bulletPrefabs;
 
     private int playersOnTeam1;
     private int playersOnTeam2;
@@ -40,7 +41,8 @@ public class ClientScript : MonoBehaviour
     private float updateDuration = 0f;
 
     private float timeSinceLastMouseUpdate = 0f;
-    private Vector2 lastUpdatedMousePosition = Vector2.zero;
+
+    public List<Bullet> bulletList = new List<Bullet>();
 
     #region Lobby
 
@@ -216,16 +218,17 @@ public class ClientScript : MonoBehaviour
     {
         if (hasGameStarted)
         {
-            MoveTanks();
+            timeSinceLastUpdate += Time.deltaTime;
+            timeSinceLastMouseUpdate += Time.deltaTime;
+            float percentageComplete = timeSinceLastUpdate / updateDuration;
+            MoveTanks(percentageComplete);
+            MoveBullets(percentageComplete);
             CheckForKeys();
         }
     }
 
-    private void MoveTanks()
+    private void MoveTanks(float percentageComplete)
     {
-        timeSinceLastUpdate += Time.deltaTime;
-        timeSinceLastMouseUpdate += Time.deltaTime;
-        float percentageComplete = timeSinceLastUpdate / updateDuration;
         for (int i = 1; i <= 4; i++)
         {
             if (playerInputs.ContainsKey(i))
@@ -234,6 +237,15 @@ public class ClientScript : MonoBehaviour
                 playerInputs[i].tankBase.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousBaseAngle, players[i].FutureBaseAngle, percentageComplete));
                 playerInputs[i].tankTurret.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousTurretAngle, players[i].FutureTurretAngle, percentageComplete));
             }
+        }
+    }
+
+    private void MoveBullets(float percentageComplete)
+    {
+        for (int i = 0; i < bulletList.Count; i++)
+        {
+            bulletList[i].transform.position = Vector3.Lerp(bulletList[i].PreviousPosition, bulletList[i].FuturePosition, percentageComplete);
+            bulletList[i].transform.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(bulletList[i].PreviousAngle, bulletList[i].FutureAngle, percentageComplete));
         }
     }
 
@@ -273,20 +285,25 @@ public class ClientScript : MonoBehaviour
             clientHandler.SendToServer("KYUD");
         }
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            clientHandler.SendToServer("SHN");
+        }
+
         if (timeSinceLastMouseUpdate > 0.1f && playerInputs.ContainsKey(playerId) && (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0))
         {
             timeSinceLastMouseUpdate = 0f;
             Vector2 pos = playerInputs[playerId].GetMousePositon();
             string message = "MMC";
             message += pos.x < 0 ? "-" : "+";
-            message += Mathf.Abs(pos.x).ToString("F2");
+            message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
             message += pos.y < 0 ? "-" : "+";
-            message += Mathf.Abs(pos.y).ToString("F2");
+            message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
             clientHandler.SendToServer(message);
         }
     }
 
-    public void UpdateGame(string message) //UPD+0.00-0.00180180...
+    public void UpdateTanks(string message) //UDT+00.00-00.00180180...
     {
         updateDuration = timeSinceLastUpdate;
         timeSinceLastUpdate = 0;
@@ -294,17 +311,17 @@ public class ClientScript : MonoBehaviour
         {
             if (playerInputs.ContainsKey(i + 1))
             {
-                float x = float.Parse(message.Substring(3 + i * 16, 5));
-                float y = float.Parse(message.Substring(8 + i * 16, 5));
+                float x = float.Parse(message.Substring(3 + i * 18, 6));
+                float y = float.Parse(message.Substring(9 + i * 18, 6));
                 playerInputs[i + 1].tankBase.position = players[i + 1].PreviousPosition = players[i + 1].FuturePosition;
                 players[i + 1].FuturePosition = new Vector2(x, y);
 
-                float baseAngle = float.Parse(message.Substring(13 + i * 16, 3));
+                float baseAngle = float.Parse(message.Substring(15 + i * 18, 3));
                 players[i + 1].PreviousBaseAngle = players[i + 1].FutureBaseAngle;
                 players[i + 1].FutureBaseAngle = baseAngle;
                 playerInputs[i + 1].tankBase.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousBaseAngle);
 
-                float turretAngle = float.Parse(message.Substring(16 + i * 16, 3));
+                float turretAngle = float.Parse(message.Substring(18 + i * 18, 3));
                 players[i + 1].PreviousTurretAngle = players[i + 1].FutureTurretAngle;
                 players[i + 1].FutureTurretAngle = turretAngle;
                 playerInputs[i + 1].tankTurret.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousTurretAngle);
@@ -312,33 +329,34 @@ public class ClientScript : MonoBehaviour
         }
     }
 
+    public void UpdateBullets(string message) //UDB+00.00-00.00180...
+    {
+        if (message.Length == 3) return;
+        for (int i = 0; i < bulletList.Count; i++)
+        {
+            float x = float.Parse(message.Substring(3 + i * 15, 6));
+            float y = float.Parse(message.Substring(9 + i * 15, 6));
+            bulletList[i].transform.position = bulletList[i].PreviousPosition = bulletList[i].FuturePosition;
+            bulletList[i].FuturePosition = new Vector2(x, y);
+
+            float baseAngle = float.Parse(message.Substring(15 + i * 15, 3));
+            bulletList[i].PreviousAngle = bulletList[i].FutureAngle;
+            bulletList[i].FutureAngle = baseAngle;
+            bulletList[i].transform.rotation = Quaternion.Euler(0, 0, bulletList[i].PreviousAngle);
+        }
+    }
+
+    public void TankShot(int player)
+    {
+        bulletList.Add(Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankCannon.position, playerInputs[player].tankCannon.rotation).GetComponent<Bullet>());
+    }
+
+    public void BulletIsDestroyed(int bullet)
+    {
+        Destroy(bulletList[bullet].gameObject);
+        bulletList.RemoveAt(bullet);
+    }
+
     #endregion
-
-    /*public void MovePlayer(string message) //ex: POS1+5.00-8.00
-    {
-        int player = int.Parse(message.Substring(3, 1));
-        float x = float.Parse(message.Substring(4, 5));
-        float y = float.Parse(message.Substring(9, 5));
-
-        playerInputs[player].transform.GetChild(0).position = new Vector2(x, y);
-        players[player - 1].SetPosition(x, y);
-    }
-
-    public void RotatePlayerBase(string message) //ex: ROB1180
-    {
-        int player = int.Parse(message.Substring(3, 1));
-        int angle = int.Parse(message.Substring(4, 3));
-
-        players[player - 1].SetBaseAngle(angle);
-    }
-
-    public void RotatePlayerTurret(string message) //ex: ROT1180
-    {
-        int player = int.Parse(message.Substring(3, 1));
-        int angle = int.Parse(message.Substring(4, 3));
-
-        players[player - 1].SetTurretAngle(angle);
-    }*/
-
 
 }

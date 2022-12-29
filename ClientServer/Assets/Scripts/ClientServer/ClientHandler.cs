@@ -56,18 +56,15 @@ public class ClientHandler : MonoBehaviour
             case "NOK":
                 clientScript.OkOrNot(false);
                 break;
-            case "UPD":
-                clientScript.UpdateGame(message);
+            case "UDT":
+                clientScript.UpdateTanks(message);
                 break;
-            /*case "POS":
-                clientScript.MovePlayer(message);
+            case "UDB":
+                clientScript.UpdateBullets(message);
                 break;
-            case "ROB":
-                clientScript.RotatePlayerBase(message);
+            case "TSH":
+                clientScript.TankShot(int.Parse(message.Substring(3, 1)));
                 break;
-            case "ROT":
-                clientScript.RotatePlayerTurret(message);
-                break;*/
         }
 
         // Example: Print message on chat

@@ -22,7 +22,7 @@ public class TankController : MonoBehaviour
 
     public void HandleShoot()
     {
-        if (Input.GetMouseButtonDown(0) && CanShoot) 
+        if (/*Input.GetMouseButtonDown(0) &&*/ CanShoot) 
         {
             //disparar bala si pot
             Instantiate(bullet, Canon.position, Canon.rotation);

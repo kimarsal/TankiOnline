@@ -1255,7 +1255,7 @@ GameObject:
   - component: {fileID: 1245671365}
   m_Layer: 5
   m_Name: Canvas
-  m_TagString: Untagged
+  m_TagString: Canvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1355,7 +1355,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98d80bf44f089da41908e75550167604, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  players: []
   playersOnTeam1: 0
   playersOnTeam2: 0
   team1Spawns:
@@ -1369,6 +1368,7 @@ MonoBehaviour:
   - {fileID: 57487840189761860, guid: 33d4075e6f7fa334c8b21950f80669ff, type: 3}
   - {fileID: 4250142428939847814, guid: 95cd89bd6def5c34496bac15ef544320, type: 3}
   - {fileID: 4250142428939847814, guid: 3c58bb461906cb54f927dc13b3416776, type: 3}
+  bulletList: []
 --- !u!1 &1386709636
 GameObject:
   m_ObjectHideFlags: 0

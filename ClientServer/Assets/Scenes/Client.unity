@@ -944,7 +944,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -2369,7 +2369,7 @@ GameObject:
   - component: {fileID: 1245671365}
   m_Layer: 5
   m_Name: Canvas
-  m_TagString: Untagged
+  m_TagString: Canvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2487,7 +2487,6 @@ MonoBehaviour:
   - {fileID: 1247130548}
   - {fileID: 56359219}
   - {fileID: 1793614012}
-  players: []
   team1Spawns:
   - {fileID: 1234949998}
   - {fileID: 967987480}
@@ -2499,6 +2498,11 @@ MonoBehaviour:
   - {fileID: 57487840189761860, guid: 33d4075e6f7fa334c8b21950f80669ff, type: 3}
   - {fileID: 4250142428939847814, guid: 95cd89bd6def5c34496bac15ef544320, type: 3}
   - {fileID: 4250142428939847814, guid: 3c58bb461906cb54f927dc13b3416776, type: 3}
+  bulletPrefabs:
+  - {fileID: 2794223510844637128, guid: 23925e47f7828f84b8a7460ab940fff8, type: 3}
+  - {fileID: 2794223510844637128, guid: 157f65a276c883d4c89e332fddccbfd5, type: 3}
+  - {fileID: 2794223510844637128, guid: a37455bd2e532f24dbcf3a9b06b62b21, type: 3}
+  - {fileID: 2794223510844637128, guid: 6aac64adc56238e479053207c304d74b, type: 3}
 --- !u!1 &1247130546
 GameObject:
   m_ObjectHideFlags: 0

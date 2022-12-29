@@ -48,6 +48,7 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   tankBase: {fileID: 3348838727776533599}
   tankTurret: {fileID: 3348838727846777755}
+  tankCannon: {fileID: 3348838727612331435}
   OnShoot:
     m_PersistentCalls:
       m_Calls:

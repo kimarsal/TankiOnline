@@ -10,6 +10,7 @@ public class PlayerInput : MonoBehaviour
     private Camera mainCamera;
     public Transform tankBase;
     public Transform tankTurret;
+    public Transform tankCannon;
 
     public UnityEvent OnShoot = new UnityEvent();
     public UnityEvent<Vector2> OnMoveBody = new UnityEvent<Vector2>();
@@ -66,5 +67,10 @@ public class PlayerInput : MonoBehaviour
     public void GetBodyMovement(Vector2 movementVector)
     {
         OnMoveBody?.Invoke(movementVector.normalized);
+    }
+
+    public void Shoot()
+    {
+        OnShoot?.Invoke();
     }
 }
