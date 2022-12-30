@@ -25,21 +25,30 @@ public class Bullet : MonoBehaviour
     {
         //transform.Rotate(new Vector3(0, 90, 0));
 
-        GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
-        if(canvas == null)
+        GameObject[] array;// create an array
+        array = GameObject.FindGameObjectsWithTag ( "Canvas" );// set the array to hold all GameObjects with the specified tag
+
+        // check if there are any GameObjects (with the specified tag) spawned
+        if ( array.Length == 0 )
         {
             isTesting = true;
             return;
+            // There are no buttons, begin spawning buttons...
         }
+       // GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
 
-        serverScript = canvas.GetComponent<ServerScript>();
+        /*if(canvas == null)
+        {
+        }*/
+
+        serverScript = array[0].GetComponent<ServerScript>();
         if (serverScript != null)
         {
             serverScript.bulletList.Add(this);
             return;
         }
         
-        clientScript = canvas.GetComponent<ClientScript>();
+        clientScript = array[0].GetComponent<ClientScript>();
         if (clientScript != null)
         {
             clientScript.bulletList.Add(this);
@@ -49,7 +58,9 @@ public class Bullet : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(isTesting) transform.Translate(Vector3.up * speed * Time.deltaTime);
+        if(isTesting) {
+            transform.Translate((Vector3.up * speed * Time.deltaTime)/2);
+        }
     }
 
     /*public void SetPos(Transform canon)
