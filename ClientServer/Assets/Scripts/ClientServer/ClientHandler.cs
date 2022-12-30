@@ -65,6 +65,9 @@ public class ClientHandler : MonoBehaviour
             case "TSH":
                 clientScript.TankShot(int.Parse(message.Substring(3, 1)));
                 break;
+            case "BID":
+                clientScript.BulletIsDestroyed(int.Parse(message.Substring(3, 1)));
+                break;
         }
 
         // Example: Print message on chat

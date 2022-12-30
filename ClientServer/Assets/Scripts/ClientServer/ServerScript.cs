@@ -83,7 +83,7 @@ public class ServerScript : MonoBehaviour
 
         for(int i = 0; i < bulletList.Count; i++)
         {
-            bulletList[i].transform.Translate(bulletList[i].transform.up * bulletList[i].speed * Time.deltaTime);
+            bulletList[i].transform.Translate(Vector3.up * bulletList[i].speed * Time.deltaTime);
         }
     }
 
@@ -194,6 +194,12 @@ public class ServerScript : MonoBehaviour
             playerInputs[from].Shoot();
             serverHandler.SendToAll("TSH" + from.ToString());
         }
+    }
+
+    public void BulletIsDestroyed(Bullet bullet){
+        int index = bulletList.IndexOf(bullet);
+        bulletList.RemoveAt(index);
+        serverHandler.SendToAll("BID"+index);
     }
 
 }

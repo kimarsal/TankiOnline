@@ -75,12 +75,17 @@ public class Bullet : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Player")) 
         {
+            Debug.Log("impacte");
             Destroy(collision.gameObject);
         }
         
-        if(serverScript != null) serverScript.bulletList.Remove(this);
-        else if(clientScript != null) clientScript.bulletList.Remove(this);
-        Destroy(gameObject);
+        if(serverScript != null){
+            serverScript.BulletIsDestroyed(this);
+        } 
+        else if(isTesting){
+            Destroy(gameObject);
+        }
+        
 
     }
 }

@@ -331,6 +331,7 @@ public class ClientScript : MonoBehaviour
 
     public void UpdateBullets(string message) //UDB+00.00-00.00180...
     {
+        Debug.Log("m: " + message);
         if (message.Length == 3) return;
         for (int i = 0; i < bulletList.Count; i++)
         {
@@ -353,8 +354,9 @@ public class ClientScript : MonoBehaviour
 
     public void BulletIsDestroyed(int bullet)
     {
-        Destroy(bulletList[bullet].gameObject);
+        GameObject b = bulletList[bullet].gameObject;
         bulletList.RemoveAt(bullet);
+        Destroy(b);      
     }
 
     #endregion
