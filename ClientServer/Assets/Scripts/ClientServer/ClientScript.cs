@@ -348,7 +348,7 @@ public class ClientScript : MonoBehaviour
 
     public void TankShot(int player)
     {
-        bulletList.Add(Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankCannon.position, playerInputs[player].tankCannon.rotation).GetComponent<Bullet>());
+        Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankCannon.position, playerInputs[player].tankCannon.rotation);
     }
 
     public void BulletIsDestroyed(int bullet)

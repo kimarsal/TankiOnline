@@ -4115,6 +4115,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GreenPlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 57487840189761861, guid: 33d4075e6f7fa334c8b21950f80669ff, type: 3}
+      propertyPath: isTesting
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 57487840189761862, guid: 33d4075e6f7fa334c8b21950f80669ff, type: 3}
       propertyPath: m_RootOrder
       value: 3
@@ -7691,6 +7695,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RedPlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 4250142428939847815, guid: 95cd89bd6def5c34496bac15ef544320, type: 3}
+      propertyPath: isTesting
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 95cd89bd6def5c34496bac15ef544320, type: 3}
@@ -7750,6 +7758,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WhitePlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 4250142428939847815, guid: 3c58bb461906cb54f927dc13b3416776, type: 3}
+      propertyPath: isTesting
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 3c58bb461906cb54f927dc13b3416776, type: 3}
@@ -7761,6 +7773,10 @@ PrefabInstance:
     serializedVersion: 2
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3348838727119411944, guid: 28cd7f3683fbaf44287a8f07a8f616af, type: 3}
+      propertyPath: isTesting
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3348838727119411945, guid: 28cd7f3683fbaf44287a8f07a8f616af, type: 3}
       propertyPath: m_Name
       value: BluePlayer

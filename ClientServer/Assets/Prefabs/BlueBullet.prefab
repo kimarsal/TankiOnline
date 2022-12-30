@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2796153998330747409}
   - component: {fileID: 8053921694948341308}
   - component: {fileID: -9157389983933030261}
+  - component: {fileID: -6989656842166136328}
   m_Layer: 0
   m_Name: BlueBullet
   m_TagString: Untagged
@@ -27,7 +28,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2794223510844637128}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.1340394, y: 2.286108, z: -5.1584797}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -98,10 +99,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c105d24af864d1e48aa7b5d0b3fb8d80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isTesting: 0
   speed: 10
   lifeTime: 0.5
   moveTime: 3
   damage: 1
+  PreviousPosition: {x: 0, y: 0}
+  PreviousAngle: 0
+  FuturePosition: {x: 0, y: 0}
+  FutureAngle: 0
 --- !u!61 &-9157389983933030261
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -112,7 +118,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -128,3 +134,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.04, y: 0.1}
   m_EdgeRadius: 0
+--- !u!50 &-6989656842166136328
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2794223510844637128}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0

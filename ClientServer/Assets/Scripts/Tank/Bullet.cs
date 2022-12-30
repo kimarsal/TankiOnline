@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    public bool isTesting = false;
 
     public float speed = 10;
     public float lifeTime = 0.5f;
@@ -23,22 +24,32 @@ public class Bullet : MonoBehaviour
     void Start()
     {
         //transform.Rotate(new Vector3(0, 90, 0));
+
         GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
-        serverScript = canvas.GetComponent<ServerScript>();
-        if(serverScript == null)
+        if(canvas == null)
         {
-            clientScript = canvas.GetComponent<ClientScript>();
+            isTesting = true;
+            return;
         }
-        else
+
+        serverScript = canvas.GetComponent<ServerScript>();
+        if (serverScript != null)
         {
             serverScript.bulletList.Add(this);
+            return;
+        }
+        
+        clientScript = canvas.GetComponent<ClientScript>();
+        if (clientScript != null)
+        {
+            clientScript.bulletList.Add(this);
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        //transform.Translate(Vector3.up * speed * Time.deltaTime);
+        if(isTesting) transform.Translate(Vector3.up * speed * Time.deltaTime);
     }
 
     /*public void SetPos(Transform canon)
@@ -47,17 +58,17 @@ public class Bullet : MonoBehaviour
         
     }*/
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        print("Impact");
+        Debug.Log(collision.gameObject.tag);
 
-        if (other.gameObject.CompareTag("Player")) 
+        if (collision.gameObject.CompareTag("Player")) 
         {
-            Destroy(other.gameObject);
+            Destroy(collision.gameObject);
         }
         
-        if(serverScript == null) clientScript.bulletList.Remove(this);
-        else serverScript.bulletList.Remove(this);
+        if(serverScript != null) serverScript.bulletList.Remove(this);
+        else if(clientScript != null) clientScript.bulletList.Remove(this);
         Destroy(gameObject);
 
     }

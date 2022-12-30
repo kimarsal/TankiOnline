@@ -6,6 +6,8 @@ using UnityEngine.Events;
 
 public class PlayerInput : MonoBehaviour
 {
+    public bool isTesting = false;
+
     [SerializeField]
     private Camera mainCamera;
     public Transform tankBase;
@@ -27,9 +29,12 @@ public class PlayerInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*GetBodyMovement();
-        GetTurretMovement();
-        GetShootingInput();*/
+        if (isTesting)
+        {
+            GetBodyMovement();
+            GetTurretMovement();
+            GetShootingInput();
+        }
     }
 
     private void GetShootingInput()
