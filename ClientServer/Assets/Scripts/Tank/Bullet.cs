@@ -20,10 +20,25 @@ public class Bullet : MonoBehaviour
     public Vector2 FuturePosition;
     public float FutureAngle;
 
+    private Rigidbody2D rb;
+    private Vector3 lastVelocity;
+    private float curSpeed;
+    private Vector3 direction;
+    private int nBounces;
+    private Vector2 InitVel;
+
+    bool _setVelocity = false;
+
     // Start is called before the first frame update
     void Start()
     {
         //transform.Rotate(new Vector3(0, 90, 0));
+        
+        //transform.Rotate(new Vector3(0, 90, 0));
+        //InitVel = new Vector2(0, 1);
+
+        rb = GetComponent<Rigidbody2D>();
+        rb.angularVelocity = 0;
 
         GameObject[] array;// create an array
         array = GameObject.FindGameObjectsWithTag ( "Canvas" );// set the array to hold all GameObjects with the specified tag
@@ -55,11 +70,30 @@ public class Bullet : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SetParams(Vector2 pos) 
     {
-        if(isTesting) {
-            transform.Translate((Vector3.up * speed * Time.deltaTime)/2);
+        InitVel = pos;
+        Debug.Log("aaaaaa");
+        _setVelocity = true;
+    }
+
+
+    void FixedUpdate()
+    {
+        if (isTesting)
+        {
+            Debug.Log(lastVelocity);
+            lastVelocity = rb.velocity;
+            //transform.Translate(Vector3.up * speed * Time.deltaTime);
+
+            if (_setVelocity)
+            {
+                print(InitVel * speed);
+                rb.velocity = InitVel * speed;
+                rb.gravityScale = 0;
+
+                _setVelocity = false;
+            }
         }
     }
 
@@ -76,11 +110,37 @@ public class Bullet : MonoBehaviour
         if (collision.gameObject.CompareTag("Player")) 
         {
             Destroy(collision.gameObject);
+            Destroy(gameObject);
         }
-        
-        if(serverScript != null) serverScript.bulletList.Remove(this);
-        else if(clientScript != null) clientScript.bulletList.Remove(this);
-        Destroy(gameObject);
+        else if (collision.gameObject.CompareTag("Bala"))
+        {
+            Destroy(collision.gameObject);
+            Destroy(gameObject);
+        }
 
+        if (serverScript != null) serverScript.bulletList.Remove(this);
+        else if(clientScript != null) clientScript.bulletList.Remove(this);
+        //Destroy(gameObject);
+
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (nBounces < 5)
+        {
+            curSpeed = lastVelocity.magnitude;
+            direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
+
+            rb.velocity = direction * Mathf.Max(curSpeed, 0);
+            nBounces++;
+        }
+        else 
+        {
+            Destroy(gameObject);
+        }
+        print("Rebote");
+
+        
+        
     }
 }
