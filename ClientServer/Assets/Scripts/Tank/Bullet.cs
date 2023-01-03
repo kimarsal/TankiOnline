@@ -13,7 +13,6 @@ public class Bullet : MonoBehaviour
     public int damage = 1;
 
     private ServerScript serverScript;
-    private ClientScript clientScript;
 
     public Vector2 PreviousPosition;
     public float PreviousAngle;
@@ -29,7 +28,6 @@ public class Bullet : MonoBehaviour
 
     bool _setVelocity = false;
 
-    // Start is called before the first frame update
     void Start()
     {
         //transform.Rotate(new Vector3(0, 90, 0));
@@ -40,34 +38,22 @@ public class Bullet : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.angularVelocity = 0;
 
-        GameObject[] array;// create an array
-        array = GameObject.FindGameObjectsWithTag ( "Canvas" );// set the array to hold all GameObjects with the specified tag
-
-        // check if there are any GameObjects (with the specified tag) spawned
-        if ( array.Length == 0 )
+        GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
+        if (canvas == null)
         {
             isTesting = true;
             return;
-            // There are no buttons, begin spawning buttons...
         }
-       // GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
 
-        /*if(canvas == null)
-        {
-        }*/
-
-        serverScript = array[0].GetComponent<ServerScript>();
+        serverScript = canvas.GetComponent<ServerScript>();
         if (serverScript != null)
         {
-            serverScript.bulletList.Add(this);
+            serverScript.AddBullet(this);
             return;
         }
-        
-        clientScript = array[0].GetComponent<ClientScript>();
-        if (clientScript != null)
-        {
-            clientScript.bulletList.Add(this);
-        }
+
+        canvas.GetComponent<ClientScript>().AddBullet(this);
+        GetComponent<BoxCollider2D>().enabled = false;
     }
 
     public void SetParams(Vector2 pos) 
@@ -103,44 +89,55 @@ public class Bullet : MonoBehaviour
         
     }*/
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Debug.Log(collision.gameObject.tag);
-
-        if (collision.gameObject.CompareTag("Player")) 
-        {
-            Debug.Log("impacte");
-            Destroy(collision.gameObject);
-            Destroy(gameObject);
-        }
-        
-        if(serverScript != null){
-            serverScript.BulletIsDestroyed(this);
-        } 
-        else if(isTesting){
-            Destroy(gameObject);
-        }
-        
-
-    }
-
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (nBounces < 5)
+        if (isTesting)
         {
-            curSpeed = lastVelocity.magnitude;
-            direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
+            if (collision.gameObject.CompareTag("Pared"))
+            {
+                if (nBounces < 5)
+                {
+                    curSpeed = lastVelocity.magnitude;
+                    direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
 
-            rb.velocity = direction * Mathf.Max(curSpeed, 0);
-            nBounces++;
+                    rb.velocity = direction * Mathf.Max(curSpeed, 0);
+                    nBounces++;
+                    print("Rebote");
+                }
+                else
+                {
+                    Destroy(gameObject);
+                }
+            }
+            else if (collision.gameObject.CompareTag("Player"))
+            {
+                Destroy(collision.transform.parent.gameObject);
+                Destroy(gameObject);
+            }
         }
-        else 
+        else
         {
-            Destroy(gameObject);
+            if (collision.gameObject.CompareTag("Pared"))
+            {
+                /*if (nBounces < 5)
+                {
+                    serverScript.BulletBounce(this);
+                    nBounces++;
+                    print("Rebote");
+                }
+                else
+                {
+                    serverScript.BulletIsDestroyed(this);
+                }*/
+                serverScript.BulletIsDestroyed(this);
+            }
+            else if (collision.gameObject.CompareTag("Player"))
+            {
+                serverScript.TankIsDestroyed(collision.transform.parent.GetComponent<PlayerInput>().playerId);
+                serverScript.BulletIsDestroyed(this);
+            }
         }
-        print("Rebote");
 
-        
-        
+
     }
 }
