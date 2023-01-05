@@ -60,4 +60,9 @@ public class PlayerCombat : MonoBehaviour
         CanShoot = true;
     }
 
+    public void Die() 
+    { 
+    
+    }
+
 }

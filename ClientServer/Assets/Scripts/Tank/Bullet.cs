@@ -30,6 +30,9 @@ public class Bullet : MonoBehaviour
 
     bool _setVelocity = false;
 
+    public GameObject TankExplosion;
+    public GameObject BulletExplosion;
+
     void Start()
     {
         //transform.Rotate(new Vector3(0, 90, 0));
@@ -106,17 +109,30 @@ public class Bullet : MonoBehaviour
                     direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
 
                     rb.velocity = direction * Mathf.Max(curSpeed, 0);
+                    
+                    var angle = Mathf.Atan2(rb.velocity.y, rb.velocity.x) * Mathf.Rad2Deg;
+                    Debug.Log(angle);
+                    transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+                    rb.angularVelocity = 0;
                     nBounces++;
                 }
                 else
                 {
+                    Instantiate(BulletExplosion, transform.position, Quaternion.identity);
                     Destroy(gameObject);
                 }
             }
             else if (collision.gameObject.CompareTag("Player"))
             {
                 Destroy(collision.transform.parent.gameObject);
+                //collision.GetComponent<PlayerCombat>().Die();
+                GameObject explo = Instantiate(TankExplosion, transform.position, Quaternion.identity);
+                
                 Destroy(gameObject);
+            }
+            else 
+            {
+                rb.angularVelocity = 0;
             }
         }
         else
@@ -129,6 +145,7 @@ public class Bullet : MonoBehaviour
                     direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
 
                     rb.velocity = direction * Mathf.Max(curSpeed, 0);
+                    //rb.angularVelocity = 0;
                     //serverScript.BulletBounce(this);
                     nBounces++;
                 }
@@ -144,7 +161,5 @@ public class Bullet : MonoBehaviour
                 serverScript.BulletIsDestroyed(this);
             }
         }
-
-
     }
 }
