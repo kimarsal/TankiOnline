@@ -62,8 +62,14 @@ public class ClientHandler : MonoBehaviour
             case "UDB":
                 clientScript.UpdateBullets(message);
                 break;
-            case "TSH":
+            case "SHN":
                 clientScript.TankShot(int.Parse(message.Substring(3, 1)));
+                break;
+            case "BID":
+                clientScript.BulletIsDestroyed(int.Parse(message.Substring(3, 1)));
+                break;
+            case "TID":
+                clientScript.TankIsDestroyed(int.Parse(message.Substring(3, 1)));
                 break;
         }
 

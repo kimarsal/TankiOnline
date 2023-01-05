@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour
 {
+    //AQUEST SCRIPT NO SERVEIX
+
     public Camera mainCamera;
     public float turretRotSpeed = 150;
     bool CanShoot = true;
@@ -28,7 +30,8 @@ public class PlayerCombat : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && CanShoot) 
         {
             //disparar bala si pot
-            Instantiate(bullet, Canon.position, Canon.rotation);
+            //Instantiate(bullet, Canon.position, Canon.rotation);
+            GameObject bala = Instantiate(bullet, Canon.position, Canon.rotation);
             StartCoroutine(Shooting(firerate));
         }
     }

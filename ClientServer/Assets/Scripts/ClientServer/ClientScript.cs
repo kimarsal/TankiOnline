@@ -149,11 +149,18 @@ public class ClientScript : MonoBehaviour
 
     private void AddTank(int player, int tank)
     {
+        int team = players[player].TeamId;
         tankButtons[tank - 1].interactable = false;
         players[player].SetTank(tank);
-        playerInputs.Add(player, Instantiate(tankPrefabs[tank - 1], players[player].TeamId == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]).GetComponent<PlayerInput>());
+
+        Transform spawn = team == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0];
         if (players[player].TeamId == 1) isTeam1Spawn1Taken = true;
         else isTeam2Spawn1Taken = true;
+
+        PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn).GetComponent<PlayerInput>();
+        playerInput.playerId = player;
+        playerInputs.Add(player, playerInput);
+
         chosenTanks++;
     }
 
@@ -331,6 +338,7 @@ public class ClientScript : MonoBehaviour
 
     public void UpdateBullets(string message) //UDB+00.00-00.00180...
     {
+        Debug.Log("m: " + message);
         if (message.Length == 3) return;
         for (int i = 0; i < bulletList.Count; i++)
         {
@@ -351,10 +359,24 @@ public class ClientScript : MonoBehaviour
         Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankCannon.position, playerInputs[player].tankCannon.rotation);
     }
 
+    public void AddBullet(Bullet bullet)
+    {
+        bulletList.Add(bullet);
+    }
+
     public void BulletIsDestroyed(int bullet)
     {
-        Destroy(bulletList[bullet].gameObject);
+        Debug.Log("Bullet destroyed");
+        GameObject b = bulletList[bullet].gameObject;
         bulletList.RemoveAt(bullet);
+        Destroy(b);
+    }
+
+    public void TankIsDestroyed(int player)
+    {
+        PlayerInput playerInput;
+        playerInputs.Remove(player, out playerInput);
+        Destroy(playerInput.transform.parent.gameObject);
     }
 
     #endregion

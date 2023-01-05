@@ -20,14 +20,19 @@ public class TankController : MonoBehaviour
         rb2d=GetComponent<Rigidbody2D>();
     }
 
-    public void HandleShoot()
+    public bool HandleShoot()
     {
-        if (/*Input.GetMouseButtonDown(0) &&*/ CanShoot) 
+        if (CanShoot) 
         {
             //disparar bala si pot
-            Instantiate(bullet, Canon.position, Canon.rotation);
+            //Instantiate(bullet, Canon.position, Canon.rotation);
+            GameObject bala = (GameObject)Instantiate(bullet, Canon.position, Canon.rotation);
+
+            bala.GetComponent<Bullet>().SetParams(new Vector2(Canon.position.x - transform.position.x, Canon.position.y - transform.position.y));
             StartCoroutine(Shooting(firerate));
+            return true;
         }
+        return false;
     }
 
     public void HandleMoveBody(Vector2 movementVector)

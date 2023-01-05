@@ -7,6 +7,7 @@ using UnityEngine.Events;
 public class PlayerInput : MonoBehaviour
 {
     public bool isTesting = false;
+    public int playerId;
 
     [SerializeField]
     private Camera mainCamera;
@@ -18,9 +19,11 @@ public class PlayerInput : MonoBehaviour
 
     public String color="";
 
-    public UnityEvent OnShoot = new UnityEvent();
+    /*public UnityEvent OnShoot = new UnityEvent();
     public UnityEvent<Vector2> OnMoveBody = new UnityEvent<Vector2>();
-    public UnityEvent<Vector2> OnMoveTurret = new UnityEvent<Vector2>();
+    public UnityEvent<Vector2> OnMoveTurret = new UnityEvent<Vector2>();*/
+
+    private TankController tankController;
 
     public bool canItMove = true;
 
@@ -28,9 +31,10 @@ public class PlayerInput : MonoBehaviour
     {
         if (mainCamera == null)
             mainCamera = Camera.main;
+
+        tankController = tankBase.GetComponent<TankController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (isTesting)
@@ -53,13 +57,15 @@ public class PlayerInput : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            OnShoot?.Invoke();
+            //OnShoot?.Invoke();
+            tankController.HandleShoot();
         }
     }
 
     private void GetTurretMovement()
     {
-        OnMoveTurret?.Invoke(GetMousePositon());
+        //OnMoveTurret?.Invoke(GetMousePositon());
+        tankController.HandleTurretMovement(GetMousePositon());
     }
 
     public Vector2 GetMousePositon()
@@ -73,21 +79,25 @@ public class PlayerInput : MonoBehaviour
     private void GetBodyMovement()
     {
         Vector2 movementVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        OnMoveBody?.Invoke(movementVector.normalized);
+        //OnMoveBody?.Invoke(movementVector.normalized);
+        tankController.HandleMoveBody(movementVector);
     }
 
     public void GetTurretMovement(Vector2 mousePosition)
     {
-        OnMoveTurret?.Invoke(mousePosition);
+        //OnMoveTurret?.Invoke(mousePosition);
+        tankController.HandleTurretMovement(mousePosition);
     }
 
     public void GetBodyMovement(Vector2 movementVector)
     {
-        OnMoveBody?.Invoke(movementVector.normalized);
+        //OnMoveBody?.Invoke(movementVector.normalized);
+        tankController.HandleMoveBody(movementVector);
     }
 
-    public void Shoot()
+    public bool TryToShoot()
     {
-        OnShoot?.Invoke();
+        //OnShoot?.Invoke();
+        return tankController.HandleShoot();
     }
 }

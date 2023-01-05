@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -54,6 +55,12 @@ public class ServerScript : MonoBehaviour
             UpdateBullets();
         }
 
+        MoveTanks();
+        MoveBullets();
+    }
+
+    private void MoveTanks()
+    {
         int horizontal = 0, vertical = 0;
         for (int i = 1; i <= 4; i++)
         {
@@ -80,10 +87,13 @@ public class ServerScript : MonoBehaviour
             }
             horizontal = vertical = 0;
         }
+    }
 
-        for(int i = 0; i < bulletList.Count; i++)
+    private void MoveBullets()
+    {
+        for (int i = 0; i < bulletList.Count; i++)
         {
-            bulletList[i].transform.Translate(bulletList[i].transform.up * bulletList[i].speed * Time.deltaTime);
+            bulletList[i].transform.Translate(Vector3.up * bulletList[i].speed * Time.deltaTime);
         }
     }
 
@@ -148,14 +158,21 @@ public class ServerScript : MonoBehaviour
     public bool ChooseTank(string message, int from)
     {
         int tank = int.Parse(message.Substring(4, 1));
+        int team = players[from].TeamId;
         foreach(KeyValuePair<int, PlayerScript> p in players)
         {
             if (p.Value.TankId == tank) return false;
         }
         players[from].SetTank(tank);
-        playerInputs.Add(from, Instantiate(tankPrefabs[tank - 1], players[from].TeamId == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0]).GetComponent<PlayerInput>());
-        if (players[from].TeamId == 1) isTeam1Spawn1Taken = true;
+
+        Transform spawn = team == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0];
+        if (team == 1) isTeam1Spawn1Taken = true;
         else isTeam2Spawn1Taken = true;
+
+        PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn).GetComponent<PlayerInput>();
+        playerInput.playerId = from;
+        playerInputs.Add(from, playerInput);
+
         return true;
     }
 
@@ -187,13 +204,39 @@ public class ServerScript : MonoBehaviour
         playerMouseCursorPositions[from] = new Vector2(x, y);
     }
 
-    public void Shoot(int from)
+    public void TryToShoot(int from)
     {
         if (playerInputs.ContainsKey(from))
         {
-            playerInputs[from].Shoot();
-            serverHandler.SendToAll("TSH" + from.ToString());
+            if (playerInputs[from].TryToShoot())
+            {
+                serverHandler.SendToAll("SHN" + from.ToString());
+            }
         }
+    }
+
+    public void AddBullet(Bullet bullet)
+    {
+        bulletList.Add(bullet);
+    }
+
+    public void BulletIsDestroyed(Bullet bullet)
+    {
+        Debug.Log("Bullet destroyed");
+        int index = bulletList.IndexOf(bullet);
+        if(index != -1)
+        {
+            bulletList.RemoveAt(index);
+            serverHandler.SendToAll("BID" + index);
+        }
+    }
+
+    public void TankIsDestroyed(int player)
+    {
+        PlayerInput playerInput;
+        playerInputs.Remove(player, out playerInput);
+        Destroy(playerInput.transform.parent.gameObject);
+        serverHandler.SendToAll("TID" + player);
     }
 
 }
