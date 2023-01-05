@@ -21,8 +21,8 @@ public class Bullet : MonoBehaviour
 
     private Rigidbody2D rb;
     private Vector3 lastVelocity;
-    private float curSpeed;
-    private Vector3 direction;
+    public float curSpeed;
+    public Vector3 direction;
     private int nBounces;
     private Vector2 InitVel;
 

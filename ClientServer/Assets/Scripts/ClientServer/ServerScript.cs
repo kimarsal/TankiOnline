@@ -93,7 +93,9 @@ public class ServerScript : MonoBehaviour
     {
         for (int i = 0; i < bulletList.Count; i++)
         {
-            bulletList[i].transform.Translate(Vector3.up * bulletList[i].speed * Time.deltaTime);
+            //bulletList[i].transform.Translate(Vector3.up * bulletList[i].speed * Time.deltaTime);
+
+            bulletList[i].GetComponent<Rigidbody2D>().velocity = bulletList[i].direction * Mathf.Max(bulletList[i].curSpeed, 0);
         }
     }
 
