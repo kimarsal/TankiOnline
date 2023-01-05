@@ -95,7 +95,7 @@ public class ServerScript : MonoBehaviour
         {
             //bulletList[i].transform.Translate(Vector3.up * bulletList[i].speed * Time.deltaTime);
 
-            bulletList[i].GetComponent<Rigidbody2D>().velocity = bulletList[i].direction * Mathf.Max(bulletList[i].curSpeed, 0);
+            //bulletList[i].GetComponent<Rigidbody2D>().velocity = bulletList[i].direction * Mathf.Max(bulletList[i].curSpeed, 0);
         }
     }
 
@@ -229,6 +229,7 @@ public class ServerScript : MonoBehaviour
         if(index != -1)
         {
             bulletList.RemoveAt(index);
+            Destroy(bullet.gameObject);
             serverHandler.SendToAll("BID" + index);
         }
     }

@@ -54,6 +54,7 @@ public class Bullet : MonoBehaviour
 
         canvas.GetComponent<ClientScript>().AddBullet(this);
         GetComponent<BoxCollider2D>().enabled = false;
+        Destroy(GetComponent<Rigidbody2D>());
     }
 
     public void SetParams(Vector2 pos) 
