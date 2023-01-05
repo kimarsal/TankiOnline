@@ -19,7 +19,7 @@ public class Bullet : MonoBehaviour
     public Vector2 FuturePosition;
     public float FutureAngle;
 
-    private Rigidbody2D rb;
+    public Rigidbody2D rb;
     private Vector3 lastVelocity;
     public float curSpeed;
     public Vector3 direction;
@@ -66,7 +66,7 @@ public class Bullet : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isTesting)
+        if (isTesting || serverScript != null)
         {
             Debug.Log(lastVelocity);
             lastVelocity = rb.velocity;
@@ -119,17 +119,21 @@ public class Bullet : MonoBehaviour
         {
             if (collision.gameObject.CompareTag("Pared"))
             {
-                /*if (nBounces < 5)
+                if (nBounces < 5)
                 {
-                    serverScript.BulletBounce(this);
+                    curSpeed = lastVelocity.magnitude;
+                    direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
+
+                    rb.velocity = direction * Mathf.Max(curSpeed, 0);
+                    //serverScript.BulletBounce(this);
                     nBounces++;
                     print("Rebote");
                 }
                 else
                 {
                     serverScript.BulletIsDestroyed(this);
-                }*/
-                serverScript.BulletIsDestroyed(this);
+                }
+                //serverScript.BulletIsDestroyed(this);
             }
             else if (collision.gameObject.CompareTag("Player"))
             {
