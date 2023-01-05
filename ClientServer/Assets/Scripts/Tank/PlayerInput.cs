@@ -24,7 +24,8 @@ public class PlayerInput : MonoBehaviour
     public UnityEvent<Vector2> OnMoveTurret = new UnityEvent<Vector2>();*/
 
     private TankController tankController;
-
+    private bool doubleshoot=false;
+    private float abilitytime=0;
     public bool canItMove = true;
 
     private void Awake()
@@ -39,13 +40,26 @@ public class PlayerInput : MonoBehaviour
     {
         if (isTesting)
         {
+            if(color=="Blue")GetMinesInput();
+            if(color=="Red")GetdoubleshootInput();
             GetBodyMovement();
             GetTurretMovement();
             GetShootingInput();
-            if(color=="Blue")GetMinesInput();
+            if(doubleshoot){
+                abilitytime+=Time.deltaTime;
+            }
+            if(abilitytime>4){
+                doubleshoot=false;
+                abilitytime=0;
+            }
         }
     }
-
+    private void GetdoubleshootInput(){
+        if (Input.GetKeyDown("space"))
+        {
+            doubleshoot=true;
+        }
+    }
     private void GetMinesInput(){
         if (Input.GetKeyDown("space"))
         {
@@ -58,7 +72,7 @@ public class PlayerInput : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             //OnShoot?.Invoke();
-            tankController.HandleShoot();
+            tankController.HandleShoot(doubleshoot);
         }
     }
 
@@ -98,6 +112,6 @@ public class PlayerInput : MonoBehaviour
     public bool TryToShoot()
     {
         //OnShoot?.Invoke();
-        return tankController.HandleShoot();
+        return tankController.HandleShoot(doubleshoot);
     }
 }

@@ -6,12 +6,14 @@ public class Bullet : MonoBehaviour
 {
     public bool isTesting = false;
 
-    public float speed = 10;
+    public float speed;
     public float lifeTime = 0.5f;
     public float moveTime = 3f;
 
     public int damage = 1;
 
+    public bool hasflare;
+    public GameObject bulletflare;
     private ServerScript serverScript;
 
     public Vector2 PreviousPosition;
@@ -60,7 +62,6 @@ public class Bullet : MonoBehaviour
     public void SetParams(Vector2 pos) 
     {
         InitVel = pos;
-        Debug.Log("aaaaaa");
         _setVelocity = true;
     }
 
@@ -69,7 +70,6 @@ public class Bullet : MonoBehaviour
     {
         if (isTesting || serverScript != null)
         {
-            Debug.Log(lastVelocity);
             lastVelocity = rb.velocity;
             //transform.Translate(Vector3.up * speed * Time.deltaTime);
 
@@ -92,18 +92,21 @@ public class Bullet : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
+        if(hasflare) {
+            SpriteRenderer spriteR = bulletflare.GetComponent<SpriteRenderer>();
+            spriteR.color = new Color(1f,1f,1f,0f);
+        }
         if (isTesting)
         {
             if (collision.gameObject.CompareTag("Pared"))
             {
-                if (nBounces < 5)
+                if (nBounces < 3)
                 {
                     curSpeed = lastVelocity.magnitude;
                     direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
 
                     rb.velocity = direction * Mathf.Max(curSpeed, 0);
                     nBounces++;
-                    print("Rebote");
                 }
                 else
                 {
@@ -120,7 +123,7 @@ public class Bullet : MonoBehaviour
         {
             if (collision.gameObject.CompareTag("Pared"))
             {
-                if (nBounces < 5)
+                if (nBounces < 3)
                 {
                     curSpeed = lastVelocity.magnitude;
                     direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
@@ -128,7 +131,6 @@ public class Bullet : MonoBehaviour
                     rb.velocity = direction * Mathf.Max(curSpeed, 0);
                     //serverScript.BulletBounce(this);
                     nBounces++;
-                    print("Rebote");
                 }
                 else
                 {

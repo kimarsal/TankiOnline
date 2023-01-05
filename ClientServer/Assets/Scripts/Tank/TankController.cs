@@ -14,26 +14,33 @@ public class TankController : MonoBehaviour
     bool CanShoot = true;
     public Transform Canon;
     public float firerate = 0.5f;
-
     private void Awake()
     {
         rb2d=GetComponent<Rigidbody2D>();
     }
 
-    public bool HandleShoot()
+    public bool HandleShoot(bool d)
     {
         if (CanShoot) 
         {
+            
             //disparar bala si pot
             //Instantiate(bullet, Canon.position, Canon.rotation);
             GameObject bala = (GameObject)Instantiate(bullet, Canon.position, Canon.rotation);
 
             bala.GetComponent<Bullet>().SetParams(new Vector2(Canon.position.x - transform.position.x, Canon.position.y - transform.position.y));
+            if(d){
+                GameObject bala2 = (GameObject)Instantiate(bullet, Canon.position, Canon.rotation);
+                bala2.GetComponent<Bullet>().SetParams(new Vector2(Canon.position.x - transform.position.x, Canon.position.y - transform.position.y));
+                GameObject bala3 = (GameObject)Instantiate(bullet, Canon.position, Canon.rotation);
+                bala3.GetComponent<Bullet>().SetParams(new Vector2(Canon.position.x - transform.position.x, Canon.position.y - transform.position.y));
+            }
             StartCoroutine(Shooting(firerate));
             return true;
         }
         return false;
     }
+
 
     public void HandleMoveBody(Vector2 movementVector)
     {
