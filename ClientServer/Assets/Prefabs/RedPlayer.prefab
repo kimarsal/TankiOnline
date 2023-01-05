@@ -81,6 +81,7 @@ MonoBehaviour:
   tankBase: {fileID: 4250142429429132848}
   tankTurret: {fileID: 4250142429356769780}
   tankCannon: {fileID: 4250142429525043140}
+  color: Red
   OnShoot:
     m_PersistentCalls:
       m_Calls:

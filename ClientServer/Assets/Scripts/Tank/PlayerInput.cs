@@ -13,6 +13,10 @@ public class PlayerInput : MonoBehaviour
     public Transform tankBase;
     public Transform tankTurret;
     public Transform tankCannon;
+    public Transform MinePos;
+    public GameObject Mine;
+
+    public String color="";
 
     public UnityEvent OnShoot = new UnityEvent();
     public UnityEvent<Vector2> OnMoveBody = new UnityEvent<Vector2>();
@@ -34,6 +38,14 @@ public class PlayerInput : MonoBehaviour
             GetBodyMovement();
             GetTurretMovement();
             GetShootingInput();
+            if(color=="Blue")GetMinesInput();
+        }
+    }
+
+    private void GetMinesInput(){
+        if (Input.GetKeyDown("space"))
+        {
+            Instantiate(Mine, MinePos.position, tankBase.rotation);
         }
     }
 
