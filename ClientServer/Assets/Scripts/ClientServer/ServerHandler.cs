@@ -93,6 +93,7 @@ public class ServerHandler : MonoBehaviour
             case "KYU": serverScript.ChangeKeyState(from, message.Substring(3, 1), false); break;
             case "MMC": serverScript.MoveMouseCursor(from, message); break;
             case "SHN": serverScript.TryToShoot(from); break;
+            case "SHS": serverScript.TryToShootSpecial(from); break;
 
         }
         

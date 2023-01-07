@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4205,7 +4205,7 @@ AudioSource:
   m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: bfc97f193794d3548b5dd3be0202447b, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 737e384ea5630fa45aff6e9f226d2a9f, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -4751,7 +4751,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 57487840189761860, guid: 33d4075e6f7fa334c8b21950f80669ff, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 57487840189761861, guid: 33d4075e6f7fa334c8b21950f80669ff, type: 3}
       propertyPath: isTesting
@@ -8857,7 +8857,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4250142428939847814, guid: 3c58bb461906cb54f927dc13b3416776, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4250142428939847815, guid: 3c58bb461906cb54f927dc13b3416776, type: 3}
       propertyPath: isTesting
@@ -8913,6 +8913,10 @@ PrefabInstance:
     - target: {fileID: 3348838727119411945, guid: 28cd7f3683fbaf44287a8f07a8f616af, type: 3}
       propertyPath: m_Layer
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3348838727119411945, guid: 28cd7f3683fbaf44287a8f07a8f616af, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3348838727119411947, guid: 28cd7f3683fbaf44287a8f07a8f616af, type: 3}
       propertyPath: m_RootOrder
@@ -9039,7 +9043,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7635705590209404715, guid: 7f08c6de7a2d4fc41940c0b0c7c74a8a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects: []

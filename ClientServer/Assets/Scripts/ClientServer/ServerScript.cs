@@ -56,7 +56,6 @@ public class ServerScript : MonoBehaviour
         }
 
         MoveTanks();
-        MoveBullets();
     }
 
     private void MoveTanks()
@@ -80,22 +79,13 @@ public class ServerScript : MonoBehaviour
             {
                 horizontal++;
             }
+
             if (playerInputs.ContainsKey(i)) //Prescindible en el joc final
             {
                 playerInputs[i].GetBodyMovement(new Vector2(horizontal, vertical));
                 playerInputs[i].GetTurretMovement(playerMouseCursorPositions[i]);
             }
             horizontal = vertical = 0;
-        }
-    }
-
-    private void MoveBullets()
-    {
-        for (int i = 0; i < bulletList.Count; i++)
-        {
-            //bulletList[i].transform.Translate(Vector3.up * bulletList[i].speed * Time.deltaTime);
-
-            //bulletList[i].GetComponent<Rigidbody2D>().velocity = bulletList[i].direction * Mathf.Max(bulletList[i].curSpeed, 0);
         }
     }
 
@@ -213,6 +203,17 @@ public class ServerScript : MonoBehaviour
             if (playerInputs[from].TryToShoot())
             {
                 serverHandler.SendToAll("SHN" + from.ToString());
+            }
+        }
+    }
+
+    public void TryToShootSpecial(int from)
+    {
+        if (playerInputs.ContainsKey(from))
+        {
+            if (playerInputs[from].TryToShootSpecial())
+            {
+                serverHandler.SendToAll("SHS" + from.ToString());
             }
         }
     }

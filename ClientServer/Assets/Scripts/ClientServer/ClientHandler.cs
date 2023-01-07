@@ -65,6 +65,9 @@ public class ClientHandler : MonoBehaviour
             case "SHN":
                 clientScript.TankShot(int.Parse(message.Substring(3, 1)));
                 break;
+            case "SHS":
+                clientScript.TankShotSpecial(int.Parse(message.Substring(3, 1)));
+                break;
             case "BID":
                 clientScript.BulletIsDestroyed(int.Parse(message.Substring(3, 1)));
                 break;

@@ -40,18 +40,18 @@ public class PlayerInput : MonoBehaviour
     {
         if (isTesting)
         {
-            if(color=="Blue")GetMinesInput();
-            if(color=="Red")GetdoubleshootInput();
+            /*if(color=="Blue")GetMinesInput();
+            if(color=="Red")GetdoubleshootInput();*/
             GetBodyMovement();
             GetTurretMovement();
             GetShootingInput();
-            if(doubleshoot){
+            /*if(doubleshoot){
                 abilitytime+=Time.deltaTime;
             }
             if(abilitytime>4){
                 doubleshoot=false;
                 abilitytime=0;
-            }
+            }*/
         }
     }
     private void GetdoubleshootInput(){
@@ -71,14 +71,16 @@ public class PlayerInput : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            //OnShoot?.Invoke();
-            tankController.HandleShoot(doubleshoot);
+            tankController.HandleShoot(/*doubleshoot*/);
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            tankController.HandleShootSpecial(color);
         }
     }
 
     private void GetTurretMovement()
     {
-        //OnMoveTurret?.Invoke(GetMousePositon());
         tankController.HandleTurretMovement(GetMousePositon());
     }
 
@@ -93,25 +95,27 @@ public class PlayerInput : MonoBehaviour
     private void GetBodyMovement()
     {
         Vector2 movementVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        //OnMoveBody?.Invoke(movementVector.normalized);
         tankController.HandleMoveBody(movementVector);
     }
 
     public void GetTurretMovement(Vector2 mousePosition)
     {
-        //OnMoveTurret?.Invoke(mousePosition);
         tankController.HandleTurretMovement(mousePosition);
     }
 
     public void GetBodyMovement(Vector2 movementVector)
     {
-        //OnMoveBody?.Invoke(movementVector.normalized);
         tankController.HandleMoveBody(movementVector);
     }
 
     public bool TryToShoot()
     {
-        //OnShoot?.Invoke();
-        return tankController.HandleShoot(doubleshoot);
+        //if(isTesting) return tankController.HandleShoot(doubleshoot);
+        return tankController.HandleShoot();
+    }
+
+    public bool TryToShootSpecial()
+    {
+        return tankController.HandleShootSpecial(color);
     }
 }

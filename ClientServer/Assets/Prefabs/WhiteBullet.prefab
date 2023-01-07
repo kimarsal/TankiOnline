@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2496100178966826074
 Transform:
   m_ObjectHideFlags: 0
@@ -119,7 +119,7 @@ Transform:
   m_Children:
   - {fileID: 2496100178966826074}
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2796153998330747409
 SpriteRenderer:
@@ -199,6 +199,8 @@ MonoBehaviour:
   rb: {fileID: 0}
   curSpeed: 0
   direction: {x: 0, y: 0, z: 0}
+  MAX_BOUNCES: 3
+  nBounces: 0
   TankExplosion: {fileID: 7635705590209404715, guid: 7f08c6de7a2d4fc41940c0b0c7c74a8a, type: 3}
   BulletExplosion: {fileID: 2213975248389802520, guid: 15c557724bcc12d4c99302f111e7d811, type: 3}
 --- !u!50 &-8463698524753204996

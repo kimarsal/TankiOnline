@@ -3,29 +3,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Drawing;
 
 public class ClientScript : MonoBehaviour
 {
     private ClientHandler clientHandler;
 
+    private enum ClientState { ChoosingTeam, ChoosingTank, Waiting, Playing };
+    private ClientState clientState;
+
+    [Header("UI")]
     public GameObject chooseTeamContainer;
+    public Button[] teamButtons;
     public GameObject chooseTankContainer;
+    public Button[] tankButtons;
     public GameObject waitingForPlayersText;
     public GameObject gameIsFullText;
     public GameObject startGameText;
-    public Button[] teamButtons;
-    public Button[] tankButtons;
+    public GameObject team1WinsText;
+    public GameObject team2WinsText;
+    public AudioSource music;
+    public AudioSource sfx;
 
-    public Dictionary<int, PlayerInput> playerInputs = new Dictionary<int, PlayerInput>();
-    public Dictionary<int, PlayerScript> players = new Dictionary<int, PlayerScript>();
+    [Header("Gameplay")]
     public Transform[] team1Spawns;
     public Transform[] team2Spawns;
     public GameObject[] tankPrefabs;
     public GameObject[] bulletPrefabs;
+    public GameObject minePrefab;
+    public Dictionary<int, PlayerInput> playerInputs = new Dictionary<int, PlayerInput>();
+    public Dictionary<int, PlayerScript> players = new Dictionary<int, PlayerScript>();
+    public List<Bullet> bulletList = new List<Bullet>();
 
     private int playersOnTeam1;
     private int playersOnTeam2;
-    private int chosenTanks;
     private bool isTeam1Spawn1Taken;
     private bool isTeam2Spawn1Taken;
 
@@ -33,16 +44,11 @@ public class ClientScript : MonoBehaviour
     private int selectedTeam;
     private int selectedTank;
 
-    private enum ClientState { ChoosingTeam, ChoosingTank, Waiting, Playing };
-    private ClientState clientState;
-
-    private bool hasGameStarted = true;
+    private bool isGameOn = true;
     private float timeSinceLastUpdate = 0f;
+    private float timeSinceLastMouseUpdate = 0f;
     private float updateDuration = 0f;
 
-    private float timeSinceLastMouseUpdate = 0f;
-
-    public List<Bullet> bulletList = new List<Bullet>();
 
     #region Lobby
 
@@ -78,7 +84,7 @@ public class ClientScript : MonoBehaviour
             }
         }
 
-        if (chosenTanks == 4)
+        if (playerInputs.Count == 4)
         {
             chooseTeamContainer.SetActive(false);
             gameIsFullText.SetActive(true);
@@ -125,7 +131,7 @@ public class ClientScript : MonoBehaviour
     public void TankIsChosen(int player, int tank)
     {
         AddTank(player, tank);
-        if(chosenTanks == 4)
+        if(playerInputs.Count == 4)
         {
             if (clientState == ClientState.Waiting)
             {
@@ -160,8 +166,6 @@ public class ClientScript : MonoBehaviour
         PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn).GetComponent<PlayerInput>();
         playerInput.playerId = player;
         playerInputs.Add(player, playerInput);
-
-        chosenTanks++;
     }
 
     public void OkOrNot(bool ok)
@@ -188,7 +192,7 @@ public class ClientScript : MonoBehaviour
                     AddTank(playerId, selectedTank);
 
                     chooseTankContainer.SetActive(false);
-                    if(chosenTanks == 4)
+                    if(playerInputs.Count == 4)
                     {
                         StartGame();
                     }
@@ -211,10 +215,19 @@ public class ClientScript : MonoBehaviour
 
     private void StartGame()
     {
-        hasGameStarted = true;
+        isGameOn = true;
         clientState = ClientState.Playing;
         waitingForPlayersText.SetActive(false);
+        StartCoroutine(ShowStartGameText());
+
+        music.Play();
+    }
+
+    private IEnumerator ShowStartGameText()
+    {
         startGameText.SetActive(true);
+        yield return new WaitForSeconds(1);
+        startGameText.SetActive(false);
     }
 
     #endregion
@@ -223,15 +236,12 @@ public class ClientScript : MonoBehaviour
 
     private void Update()
     {
-        if (hasGameStarted)
-        {
-            timeSinceLastUpdate += Time.deltaTime;
-            timeSinceLastMouseUpdate += Time.deltaTime;
-            float percentageComplete = timeSinceLastUpdate / updateDuration;
-            MoveTanks(percentageComplete);
-            MoveBullets(percentageComplete);
-            CheckForKeys();
-        }
+        timeSinceLastUpdate += Time.deltaTime;
+        timeSinceLastMouseUpdate += Time.deltaTime;
+        float percentageComplete = timeSinceLastUpdate / updateDuration;
+        MoveTanks(percentageComplete);
+        MoveBullets(percentageComplete);
+        CheckForKeys();
     }
 
     private void MoveTanks(float percentageComplete)
@@ -258,6 +268,20 @@ public class ClientScript : MonoBehaviour
 
     private void CheckForKeys()
     {
+        if (timeSinceLastMouseUpdate > 0.1f && playerInputs.ContainsKey(playerId) && (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0))
+        {
+            timeSinceLastMouseUpdate = 0f;
+            Vector2 pos = playerInputs[playerId].GetMousePositon();
+            string message = "MMC";
+            message += pos.x < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
+            message += pos.y < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
+            clientHandler.SendToServer(message);
+        }
+
+        if (!isGameOn) return;
+
         if (Input.GetKeyDown(KeyCode.W))
         {
             clientHandler.SendToServer("KYDW");
@@ -297,16 +321,9 @@ public class ClientScript : MonoBehaviour
             clientHandler.SendToServer("SHN");
         }
 
-        if (timeSinceLastMouseUpdate > 0.1f && playerInputs.ContainsKey(playerId) && (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            timeSinceLastMouseUpdate = 0f;
-            Vector2 pos = playerInputs[playerId].GetMousePositon();
-            string message = "MMC";
-            message += pos.x < 0 ? "-" : "+";
-            message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
-            message += pos.y < 0 ? "-" : "+";
-            message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
-            clientHandler.SendToServer(message);
+            clientHandler.SendToServer("SHS");
         }
     }
 
@@ -356,12 +373,38 @@ public class ClientScript : MonoBehaviour
 
     public void TankShot(int player)
     {
-        Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankCannon.position, playerInputs[player].tankCannon.rotation);
+        SpawnBullet(player);
     }
 
-    public void AddBullet(Bullet bullet)
+    public void TankShotSpecial(int player)
     {
+        switch (players[player].TankId)
+        {
+            case 0: Mine mine = Instantiate(minePrefab, transform.position, transform.rotation).GetComponent<Mine>(); /*TODO: treure habilitat de matar :)*/ break;
+            case 1: StartCoroutine(Spurt(player)); break;
+            case 2: SpawnBullet(player, false, -10); SpawnBullet(player); SpawnBullet(player, false, 10); break;
+            case 3: SpawnBullet(player, true); break;
+        }
+    }
+
+    private void SpawnBullet(int player, bool isMissile = false, float angleOffset = 0)
+    {
+        Bullet bullet = Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankCannon.position, Quaternion.Euler(0, 0, playerInputs[player].tankCannon.rotation.z + angleOffset)).GetComponent<Bullet>();
+        if (isMissile)
+        {
+            bullet.transform.localScale = Vector3.one * 2;
+        }
+
         bulletList.Add(bullet);
+    }
+
+    IEnumerator Spurt(int player)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            SpawnBullet(player);
+            yield return new WaitForSeconds(0.2f);
+        }
     }
 
     public void BulletIsDestroyed(int bullet)
@@ -377,6 +420,39 @@ public class ClientScript : MonoBehaviour
         PlayerInput playerInput;
         playerInputs.Remove(player, out playerInput);
         Destroy(playerInput.transform.parent.gameObject);
+
+        if (!isGameOn) return;
+
+        if (players[player].TeamId == 1)
+        {
+            playersOnTeam1--;
+            if (playersOnTeam1 == 0)
+            {
+                GameOver(false);
+            }
+        }
+        else
+        {
+            playersOnTeam2--;
+            if (playersOnTeam2 == 0)
+            {
+                GameOver(true);
+            }
+        }
+    }
+
+    private void GameOver(bool team1Won)
+    {
+        isGameOn = false;
+        if (team1Won) team1WinsText.SetActive(true);
+        else team2WinsText.SetActive(true);
+
+        clientHandler.SendToServer("KYUW");
+        clientHandler.SendToServer("KYUA");
+        clientHandler.SendToServer("KYUS");
+        clientHandler.SendToServer("KYUD");
+
+        music.Stop();
     }
 
     #endregion

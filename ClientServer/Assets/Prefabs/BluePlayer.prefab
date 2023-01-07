@@ -46,57 +46,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isTesting: 0
+  playerId: 0
   mainCamera: {fileID: 0}
   tankBase: {fileID: 3348838727776533599}
   tankTurret: {fileID: 3348838727846777755}
-  tankCannon: {fileID: 3348838727612331435}
+  tankCannon: {fileID: 6017534412744934920}
+  MinePos: {fileID: 0}
   Mine: {fileID: 0}
   color: Blue
-  OnShoot:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3348838727776533598}
-        m_TargetAssemblyTypeName: TankController, Assembly-CSharp
-        m_MethodName: HandleShoot
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnMoveBody:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3348838727776533598}
-        m_TargetAssemblyTypeName: TankController, Assembly-CSharp
-        m_MethodName: HandleMoveBody
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnMoveTurret:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3348838727776533598}
-        m_TargetAssemblyTypeName: TankController, Assembly-CSharp
-        m_MethodName: HandleTurretMovement
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
   canItMove: 1
 --- !u!1 &3348838727155903923
 GameObject:
@@ -342,9 +299,11 @@ MonoBehaviour:
   rotationSpeed: 200
   turretRotationSpeed: 150
   turretParent: {fileID: 3348838727846777755}
-  bullet: {fileID: 2794223510844637128, guid: 23925e47f7828f84b8a7460ab940fff8, type: 3}
+  bulletPrefab: {fileID: 2794223510844637128, guid: 23925e47f7828f84b8a7460ab940fff8, type: 3}
   Canon: {fileID: 6017534412744934920}
   firerate: 0.5
+  specialFirerate: 2
+  minePrefab: {fileID: 4045738909771559124, guid: 797ec7f557a30b249aacfcbe251c61ff, type: 3}
 --- !u!61 &3236430986248545271
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -25,8 +25,10 @@ public class Bullet : MonoBehaviour
     private Vector3 lastVelocity;
     public float curSpeed;
     public Vector3 direction;
-    private int nBounces;
+    public int MAX_BOUNCES = 3;
+    public int nBounces;
     private Vector2 InitVel;
+    private BoxCollider2D boxCollider;
 
     bool _setVelocity = false;
 
@@ -35,10 +37,9 @@ public class Bullet : MonoBehaviour
 
     void Start()
     {
-        //transform.Rotate(new Vector3(0, 90, 0));
-        
-        //transform.Rotate(new Vector3(0, 90, 0));
-        //InitVel = new Vector2(0, 1);
+        boxCollider = GetComponent<BoxCollider2D>();
+        boxCollider.enabled = false;
+        StartCoroutine(EnableBoxCollider());
 
         rb = GetComponent<Rigidbody2D>();
         rb.angularVelocity = 0;
@@ -57,9 +58,13 @@ public class Bullet : MonoBehaviour
             return;
         }
 
-        canvas.GetComponent<ClientScript>().AddBullet(this);
-        GetComponent<BoxCollider2D>().enabled = false;
         Destroy(GetComponent<Rigidbody2D>());
+    }
+
+    private IEnumerator EnableBoxCollider()
+    {
+        yield return new WaitForSeconds(0.5f);
+        if (isTesting || serverScript != null) boxCollider.enabled = true;
     }
 
     public void SetParams(Vector2 pos) 
@@ -103,7 +108,7 @@ public class Bullet : MonoBehaviour
         {
             if (collision.gameObject.CompareTag("Pared"))
             {
-                if (nBounces < 3)
+                if (nBounces < MAX_BOUNCES)
                 {
                     curSpeed = lastVelocity.magnitude;
                     direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
@@ -139,7 +144,7 @@ public class Bullet : MonoBehaviour
         {
             if (collision.gameObject.CompareTag("Pared"))
             {
-                if (nBounces < 3)
+                if (nBounces < MAX_BOUNCES)
                 {
                     curSpeed = lastVelocity.magnitude;
                     direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
