@@ -11,59 +11,25 @@ public class PlayerInput : MonoBehaviour
 
     [SerializeField]
     private Camera mainCamera;
-    public Transform tankBase;
-    public Transform tankTurret;
-    public Transform tankCannon;
     public Transform MinePos;
     public GameObject Mine;
-
-    public String color="";
-
-    /*public UnityEvent OnShoot = new UnityEvent();
-    public UnityEvent<Vector2> OnMoveBody = new UnityEvent<Vector2>();
-    public UnityEvent<Vector2> OnMoveTurret = new UnityEvent<Vector2>();*/
-
-    private TankController tankController;
-    private bool doubleshoot=false;
-    private float abilitytime=0;
-    public bool canItMove = true;
+    public TankController tankController;
 
     private void Awake()
     {
         if (mainCamera == null)
             mainCamera = Camera.main;
 
-        tankController = tankBase.GetComponent<TankController>();
+        tankController = transform.GetComponentInChildren<TankController>();
     }
 
     void Update()
     {
         if (isTesting)
         {
-            /*if(color=="Blue")GetMinesInput();
-            if(color=="Red")GetdoubleshootInput();*/
             GetBodyMovement();
             GetTurretMovement();
             GetShootingInput();
-            /*if(doubleshoot){
-                abilitytime+=Time.deltaTime;
-            }
-            if(abilitytime>4){
-                doubleshoot=false;
-                abilitytime=0;
-            }*/
-        }
-    }
-    private void GetdoubleshootInput(){
-        if (Input.GetKeyDown("space"))
-        {
-            doubleshoot=true;
-        }
-    }
-    private void GetMinesInput(){
-        if (Input.GetKeyDown("space"))
-        {
-            Instantiate(Mine, MinePos.position, tankBase.rotation);
         }
     }
 
@@ -71,11 +37,11 @@ public class PlayerInput : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            tankController.HandleShoot(/*doubleshoot*/);
+            tankController.HandleShoot();
         }
         else if (Input.GetKeyDown(KeyCode.Space))
         {
-            tankController.HandleShootSpecial(color);
+            tankController.HandleShootSpecial();
         }
     }
 
@@ -110,12 +76,11 @@ public class PlayerInput : MonoBehaviour
 
     public bool TryToShoot()
     {
-        //if(isTesting) return tankController.HandleShoot(doubleshoot);
         return tankController.HandleShoot();
     }
 
     public bool TryToShootSpecial()
     {
-        return tankController.HandleShootSpecial(color);
+        return tankController.HandleShootSpecial();
     }
 }

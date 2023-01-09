@@ -4,24 +4,17 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    public bool isTesting = false;
-
+    public Rigidbody2D rb;
     public float speed;
-    public float lifeTime = 0.5f;
-    public float moveTime = 3f;
-
-    public int damage = 1;
-
     public bool hasflare;
+    public bool isTesting = false;
+    public GameObject TankExplosion;
+    public GameObject BulletExplosion;
     public GameObject bulletflare;
     private ServerScript serverScript;
 
     public Vector2 PreviousPosition;
-    public float PreviousAngle;
     public Vector2 FuturePosition;
-    public float FutureAngle;
-
-    public Rigidbody2D rb;
     private Vector3 lastVelocity;
     public float curSpeed;
     public Vector3 direction;
@@ -32,8 +25,6 @@ public class Bullet : MonoBehaviour
 
     bool _setVelocity = false;
 
-    public GameObject TankExplosion;
-    public GameObject BulletExplosion;
 
     void Start()
     {
@@ -79,7 +70,6 @@ public class Bullet : MonoBehaviour
         if (isTesting || serverScript != null)
         {
             lastVelocity = rb.velocity;
-            //transform.Translate(Vector3.up * speed * Time.deltaTime);
 
             if (_setVelocity)
             {
@@ -151,19 +141,29 @@ public class Bullet : MonoBehaviour
                     direction = Vector3.Reflect(lastVelocity.normalized, collision.contacts[0].normal);
 
                     rb.velocity = direction * Mathf.Max(curSpeed, 0);
-                    //rb.angularVelocity = 0;
-                    //serverScript.BulletBounce(this);
+
+                    var angle = Mathf.Atan2(rb.velocity.y, rb.velocity.x) * Mathf.Rad2Deg;
+                    transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+                    rb.angularVelocity = 0;
                     nBounces++;
                 }
                 else
                 {
                     serverScript.BulletIsDestroyed(this);
                 }
-                //serverScript.BulletIsDestroyed(this);
             }
             else if (collision.gameObject.CompareTag("Player"))
             {
                 serverScript.TankIsDestroyed(collision.transform.parent.GetComponent<PlayerInput>().playerId);
+                serverScript.BulletIsDestroyed(this);
+            }
+            else if (collision.gameObject.CompareTag("Bala"))
+            {
+                serverScript.BulletIsDestroyed(this);
+            }
+            else if (collision.gameObject.CompareTag("Destruible"))
+            {
+                serverScript.ObjectIsDestroyed(collision.gameObject.GetComponent<ObjetoDestruible>());
                 serverScript.BulletIsDestroyed(this);
             }
         }

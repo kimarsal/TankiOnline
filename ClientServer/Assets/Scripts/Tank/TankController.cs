@@ -1,54 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class TankController : MonoBehaviour
 {
+    public enum TankType { BlueTank, GreenTank, RedTank, WhiteTank };
+    public TankType tankType;
+
     public Rigidbody2D rb2d;
     private Vector2 movementVector;
     public float maxSpeed=10;
     public float rotationSpeed=100;
     public float turretRotationSpeed=150;
     public Transform turretParent;
-    public GameObject bulletPrefab;
-    private bool CanShoot = true;
-    private bool CanShootSpecial = true;
     public Transform Canon;
-    public float firerate = 0.5f;
-    public float specialFirerate = 2f;
-    public GameObject minePrefab;
-
     public Transform Canon2;
     public Transform Canon3;
-    public bool redTank = false;
+    public GameObject bulletPrefab;
+    public GameObject minePrefab;
+
+    private bool CanShoot = true;
+    private bool CanShootSpecial = true;
+    private float firerate = 0.5f;
+    private float specialFirerate = 2f;
 
 
     private void Awake()
     {
         rb2d=GetComponent<Rigidbody2D>();
-    }
-
-    public bool HandleShoot(bool d)
-    {
-        if (CanShoot) 
-        {
-            
-            //disparar bala si pot
-            //Instantiate(bullet, Canon.position, Canon.rotation);
-            GameObject bala = (GameObject)Instantiate(bulletPrefab, Canon.position, Canon.rotation);
-
-            bala.GetComponent<Bullet>().SetParams(new Vector2(Canon.position.x - transform.position.x, Canon.position.y - transform.position.y));
-            if(redTank)
-            {
-                GameObject bala2 = (GameObject)Instantiate(bulletPrefab, Canon2.position, Canon2.rotation);
-                bala2.GetComponent<Bullet>().SetParams(new Vector2(Canon2.position.x - transform.position.x, Canon2.position.y - transform.position.y));
-                GameObject bala3 = (GameObject)Instantiate(bulletPrefab, Canon3.position, Canon3.rotation);
-                bala3.GetComponent<Bullet>().SetParams(new Vector2(Canon3.position.x - transform.position.x, Canon3.position.y - transform.position.y));
-            }
-            StartCoroutine(Shooting());
-            return true;
-        }
-        return false;
     }
 
     public bool HandleShoot()
@@ -62,18 +42,16 @@ public class TankController : MonoBehaviour
         return false;
     }
 
-    public bool HandleShootSpecial(string color)
+    public bool HandleShootSpecial()
     {
         if (CanShoot && CanShootSpecial)
         {
-            switch (color)
+            switch (tankType)
             {
-                case "Blue": Instantiate(minePrefab, transform.position, transform.rotation); break;
-                case "Green": StartCoroutine(Spurt()); break;
-                case "Red": 
-                    SpawnBullet(false, 0); StartCoroutine(Shooting()); 
-                    break;
-                case "White": SpawnBullet(true); break;
+                case TankType.BlueTank: Instantiate(minePrefab, transform.position, transform.rotation); break;
+                case TankType.GreenTank: StartCoroutine(Spurt()); break;
+                case TankType.RedTank: SpawnBullet(true); StartCoroutine(Shooting()); break;
+                case TankType.WhiteTank: SpawnBullet(true); StartCoroutine(Shooting()); break;
             }
 
             StartCoroutine(ShootingSpecial());
@@ -82,24 +60,30 @@ public class TankController : MonoBehaviour
         return false;
     }
 
-    private void SpawnBullet(bool isMissile = false, float angleOffset = 0)
+    private void SpawnBullet(bool special = false)
     {
-        Bullet bullet = Instantiate(bulletPrefab, Canon.position, Quaternion.Euler(0, 0, Canon.rotation.z + angleOffset)).GetComponent<Bullet>();
-        bullet.SetParams(new Vector2(Canon.position.x - transform.position.x, Canon.position.y - transform.position.y));
-        if (isMissile)
+        Bullet bullet = Instantiate(bulletPrefab, Canon.position,Canon.rotation).GetComponent<Bullet>();
+        bullet.SetParams(GetBulletInitialVelocity(Canon));
+        if (special)
         {
-            bullet.transform.localScale *= 2f;
-            bullet.nBounces = bullet.MAX_BOUNCES;
+            if(tankType == TankType.WhiteTank)
+            {
+                bullet.transform.localScale *= 2f;
+                bullet.nBounces = bullet.MAX_BOUNCES;
+            }
+            else if (tankType == TankType.RedTank)
+            {
+                Bullet bullet2 = Instantiate(bulletPrefab, Canon2.position, Canon2.rotation).GetComponent<Bullet>();
+                bullet2.SetParams(GetBulletInitialVelocity(Canon2));
+                Bullet bullet3 = Instantiate(bulletPrefab, Canon3.position, Canon3.rotation).GetComponent<Bullet>();
+                bullet3.SetParams(GetBulletInitialVelocity(Canon3));
+            }
         }
-        Debug.Log("Red tank?");
-        Debug.Log(redTank);
-        if (redTank)
-        {
-            GameObject bala2 = (GameObject)Instantiate(bulletPrefab, Canon2.position, Canon2.rotation);
-            bala2.GetComponent<Bullet>().SetParams(new Vector2(Canon2.position.x - transform.position.x, Canon2.position.y - transform.position.y));
-            GameObject bala3 = (GameObject)Instantiate(bulletPrefab, Canon3.position, Canon3.rotation);
-            bala3.GetComponent<Bullet>().SetParams(new Vector2(Canon3.position.x - transform.position.x, Canon3.position.y - transform.position.y));
-        }
+    }
+
+    public Vector2 GetBulletInitialVelocity(Transform canon)
+    {
+        return new Vector2(canon.position.x - transform.position.x, canon.position.y - transform.position.y);
     }
 
     public void HandleMoveBody(Vector2 movementVector)
@@ -115,7 +99,8 @@ public class TankController : MonoBehaviour
         turretParent.rotation=Quaternion.RotateTowards(turretParent.rotation,Quaternion.Euler(0,0,desiredAngle-90),rotationStep);
     }
 
-    private void FixedUpdate(){
+    private void FixedUpdate()
+    {
         rb2d.velocity=(Vector2)transform.up*movementVector.y*maxSpeed*Time.fixedDeltaTime;
         rb2d.MoveRotation(transform.rotation*Quaternion.Euler(0,0,-movementVector.x*rotationSpeed*Time.fixedDeltaTime));
     }

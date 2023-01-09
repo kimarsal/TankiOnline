@@ -96,15 +96,17 @@ public class ServerScript : MonoBehaviour
         {
             if (playerInputs.ContainsKey(i)) //Prescindible en el joc final
             {
-                Vector2 pos = playerInputs[i].tankBase.position;
+                Vector2 pos = playerInputs[i].tankController.transform.position;
                 message += pos.x < 0 ? "-" : "+";
                 message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
                 message += pos.y < 0 ? "-" : "+";
                 message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
 
-                float angleBase = playerInputs[i].tankBase.rotation.eulerAngles.z % 360;
+                float angleBase = playerInputs[i].tankController.transform.rotation.eulerAngles.z % 360;
+                if (angleBase < 0) angleBase = 0;
                 message += Mathf.FloorToInt(angleBase).ToString().PadLeft(3, '0');
-                float angleTurret = playerInputs[i].tankTurret.rotation.eulerAngles.z % 360;
+                float angleTurret = playerInputs[i].tankController.turretParent.rotation.eulerAngles.z % 360;
+                if (angleTurret < 0) angleTurret = 0;
                 message += Mathf.FloorToInt(angleTurret).ToString().PadLeft(3, '0');
             }
             else
@@ -125,9 +127,6 @@ public class ServerScript : MonoBehaviour
             message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
             message += pos.y < 0 ? "-" : "+";
             message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
-
-            float angle = bulletList[i].transform.rotation.eulerAngles.z % 360;
-            message += Mathf.FloorToInt(angle).ToString().PadLeft(3, '0');
         }
         if(bulletList.Count > 0) serverHandler.SendToAll(message);
     }
@@ -225,7 +224,6 @@ public class ServerScript : MonoBehaviour
 
     public void BulletIsDestroyed(Bullet bullet)
     {
-        Debug.Log("Bullet destroyed");
         int index = bulletList.IndexOf(bullet);
         if(index != -1)
         {
@@ -233,6 +231,11 @@ public class ServerScript : MonoBehaviour
             Destroy(bullet.gameObject);
             serverHandler.SendToAll("BID" + index);
         }
+    }
+
+    public void ObjectIsDestroyed(ObjetoDestruible objeto)
+    {
+
     }
 
     public void TankIsDestroyed(int player)

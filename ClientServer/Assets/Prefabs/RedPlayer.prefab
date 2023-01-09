@@ -199,7 +199,7 @@ Transform:
   m_Children:
   - {fileID: 4250142429429132848}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4250142428939847815
 MonoBehaviour:
@@ -213,16 +213,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6784afe9d53aa148b2c6537b6fe99cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isTesting: 1
+  isTesting: 0
   playerId: 0
   mainCamera: {fileID: 0}
-  tankBase: {fileID: 4250142429429132848}
-  tankTurret: {fileID: 4250142429356769780}
-  tankCannon: {fileID: 4101018606886662782}
   MinePos: {fileID: 0}
   Mine: {fileID: 0}
-  color: Red
-  canItMove: 1
+  tankController: {fileID: 0}
 --- !u!1 &4250142428976283612
 GameObject:
   m_ObjectHideFlags: 0
@@ -408,19 +404,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e443653f93eb5b4fa240cf5f93a194e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tankType: 2
   rb2d: {fileID: 0}
   maxSpeed: 70
   rotationSpeed: 200
   turretRotationSpeed: 150
   turretParent: {fileID: 4250142429356769780}
-  bulletPrefab: {fileID: 2794223510844637128, guid: a37455bd2e532f24dbcf3a9b06b62b21, type: 3}
   Canon: {fileID: 4101018606886662782}
-  firerate: 0.5
-  specialFirerate: 2
-  minePrefab: {fileID: 4045738909771559124, guid: 797ec7f557a30b249aacfcbe251c61ff, type: 3}
   Canon2: {fileID: 3068905777996864835}
   Canon3: {fileID: 7389977742694013886}
-  redTank: 1
+  bulletPrefab: {fileID: 2794223510844637128, guid: a37455bd2e532f24dbcf3a9b06b62b21, type: 3}
+  minePrefab: {fileID: 4045738909771559124, guid: 797ec7f557a30b249aacfcbe251c61ff, type: 3}
 --- !u!61 &7968648730411142400
 BoxCollider2D:
   m_ObjectHideFlags: 0

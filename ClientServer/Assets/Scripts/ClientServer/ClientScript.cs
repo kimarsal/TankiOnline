@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Drawing;
+using static TankController;
 
 public class ClientScript : MonoBehaviour
 {
@@ -31,6 +32,9 @@ public class ClientScript : MonoBehaviour
     public GameObject[] tankPrefabs;
     public GameObject[] bulletPrefabs;
     public GameObject minePrefab;
+    public GameObject tankExplosion;
+    public GameObject bulletExplosion;
+
     public Dictionary<int, PlayerInput> playerInputs = new Dictionary<int, PlayerInput>();
     public Dictionary<int, PlayerScript> players = new Dictionary<int, PlayerScript>();
     public List<Bullet> bulletList = new List<Bullet>();
@@ -165,6 +169,7 @@ public class ClientScript : MonoBehaviour
 
         PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn).GetComponent<PlayerInput>();
         playerInput.playerId = player;
+        players[player].PreviousPosition = spawn.position;
         playerInputs.Add(player, playerInput);
     }
 
@@ -250,9 +255,9 @@ public class ClientScript : MonoBehaviour
         {
             if (playerInputs.ContainsKey(i))
             {
-                playerInputs[i].tankBase.position = Vector3.Lerp(players[i].PreviousPosition, players[i].FuturePosition, percentageComplete);
-                playerInputs[i].tankBase.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousBaseAngle, players[i].FutureBaseAngle, percentageComplete));
-                playerInputs[i].tankTurret.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousTurretAngle, players[i].FutureTurretAngle, percentageComplete));
+                playerInputs[i].tankController.transform.position = Vector3.Lerp(players[i].PreviousPosition, players[i].FuturePosition, percentageComplete);
+                playerInputs[i].tankController.transform.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousBaseAngle, players[i].FutureBaseAngle, percentageComplete));
+                playerInputs[i].tankController.turretParent.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousTurretAngle, players[i].FutureTurretAngle, percentageComplete));
             }
         }
     }
@@ -262,7 +267,6 @@ public class ClientScript : MonoBehaviour
         for (int i = 0; i < bulletList.Count; i++)
         {
             bulletList[i].transform.position = Vector3.Lerp(bulletList[i].PreviousPosition, bulletList[i].FuturePosition, percentageComplete);
-            bulletList[i].transform.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(bulletList[i].PreviousAngle, bulletList[i].FutureAngle, percentageComplete));
         }
     }
 
@@ -337,37 +341,32 @@ public class ClientScript : MonoBehaviour
             {
                 float x = float.Parse(message.Substring(3 + i * 18, 6));
                 float y = float.Parse(message.Substring(9 + i * 18, 6));
-                playerInputs[i + 1].tankBase.position = players[i + 1].PreviousPosition = players[i + 1].FuturePosition;
+                playerInputs[i + 1].tankController.transform.position = players[i + 1].PreviousPosition = players[i + 1].FuturePosition;
                 players[i + 1].FuturePosition = new Vector2(x, y);
 
                 float baseAngle = float.Parse(message.Substring(15 + i * 18, 3));
                 players[i + 1].PreviousBaseAngle = players[i + 1].FutureBaseAngle;
                 players[i + 1].FutureBaseAngle = baseAngle;
-                playerInputs[i + 1].tankBase.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousBaseAngle);
+                playerInputs[i + 1].tankController.transform.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousBaseAngle);
 
                 float turretAngle = float.Parse(message.Substring(18 + i * 18, 3));
                 players[i + 1].PreviousTurretAngle = players[i + 1].FutureTurretAngle;
                 players[i + 1].FutureTurretAngle = turretAngle;
-                playerInputs[i + 1].tankTurret.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousTurretAngle);
+                playerInputs[i + 1].tankController.turretParent.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousTurretAngle);
             }
         }
     }
 
-    public void UpdateBullets(string message) //UDB+00.00-00.00180...
+    public void UpdateBullets(string message) //UDB+00.00-00.00...
     {
-        Debug.Log("m: " + message);
-        if (message.Length == 3) return;
-        for (int i = 0; i < bulletList.Count; i++)
+        int i = 0;
+        while(3 + i * 12 < message.Length)
         {
-            float x = float.Parse(message.Substring(3 + i * 15, 6));
-            float y = float.Parse(message.Substring(9 + i * 15, 6));
+            float x = float.Parse(message.Substring(3 + i * 12, 6));
+            float y = float.Parse(message.Substring(9 + i * 12, 6));
             bulletList[i].transform.position = bulletList[i].PreviousPosition = bulletList[i].FuturePosition;
             bulletList[i].FuturePosition = new Vector2(x, y);
-
-            float baseAngle = float.Parse(message.Substring(15 + i * 15, 3));
-            bulletList[i].PreviousAngle = bulletList[i].FutureAngle;
-            bulletList[i].FutureAngle = baseAngle;
-            bulletList[i].transform.rotation = Quaternion.Euler(0, 0, bulletList[i].PreviousAngle);
+            i++;
         }
     }
 
@@ -378,24 +377,40 @@ public class ClientScript : MonoBehaviour
 
     public void TankShotSpecial(int player)
     {
-        switch (players[player].TankId)
+        switch (playerInputs[player].tankController.tankType)
         {
-            case 0: Mine mine = Instantiate(minePrefab, transform.position, transform.rotation).GetComponent<Mine>(); /*TODO: treure habilitat de matar :)*/ break;
-            case 1: StartCoroutine(Spurt(player)); break;
-            case 2: SpawnBullet(player, false, -10); SpawnBullet(player); SpawnBullet(player, false, 10); break;
-            case 3: SpawnBullet(player, true); break;
+            case TankType.BlueTank: Instantiate(minePrefab, playerInputs[player].MinePos.position, minePrefab.transform.rotation); /*TODO: treure habilitat de matar :)*/break;
+            case TankType.GreenTank: StartCoroutine(Spurt(player)); break;
+            case TankType.RedTank: SpawnBullet(player, true); break;
+            case TankType.WhiteTank: SpawnBullet(player, true); break;
         }
     }
 
-    private void SpawnBullet(int player, bool isMissile = false, float angleOffset = 0)
+    private void SpawnBullet(int player, bool special = false)
     {
-        Bullet bullet = Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankCannon.position, Quaternion.Euler(0, 0, playerInputs[player].tankCannon.rotation.z + angleOffset)).GetComponent<Bullet>();
-        if (isMissile)
-        {
-            bullet.transform.localScale = Vector3.one * 2;
-        }
-
+        Bullet bullet = Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankController.Canon.position, playerInputs[player].tankController.Canon.rotation).GetComponent<Bullet>();
+        bullet.SetParams(playerInputs[player].tankController.GetBulletInitialVelocity(playerInputs[player].tankController.Canon));
+        bullet.PreviousPosition = bullet.FuturePosition = playerInputs[player].tankController.Canon.position;
         bulletList.Add(bullet);
+        if (special)
+        {
+            if (playerInputs[player].tankController.tankType == TankType.WhiteTank)
+            {
+                bullet.transform.localScale *= 2f;
+                bullet.nBounces = bullet.MAX_BOUNCES;
+            }
+            else if (playerInputs[player].tankController.tankType == TankType.RedTank)
+            {
+                Bullet bullet2 = Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankController.Canon2.position, playerInputs[player].tankController.Canon2.rotation).GetComponent<Bullet>();
+                bullet2.SetParams(playerInputs[player].tankController.GetBulletInitialVelocity(playerInputs[player].tankController.Canon2));
+                bullet2.PreviousPosition = bullet2.FuturePosition = playerInputs[player].tankController.Canon2.position;
+                bulletList.Add(bullet2);
+                Bullet bullet3 = Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankController.Canon3.position, playerInputs[player].tankController.Canon3.rotation).GetComponent<Bullet>();
+                bullet3.SetParams(playerInputs[player].tankController.GetBulletInitialVelocity(playerInputs[player].tankController.Canon3));
+                bullet3.PreviousPosition = bullet3.FuturePosition = playerInputs[player].tankController.Canon3.position;
+                bulletList.Add(bullet3);
+            }
+        }
     }
 
     IEnumerator Spurt(int player)
@@ -409,7 +424,7 @@ public class ClientScript : MonoBehaviour
 
     public void BulletIsDestroyed(int bullet)
     {
-        Debug.Log("Bullet destroyed");
+        Instantiate(bulletExplosion, bulletList[bullet].transform.position, Quaternion.identity);
         GameObject b = bulletList[bullet].gameObject;
         bulletList.RemoveAt(bullet);
         Destroy(b);
@@ -417,6 +432,8 @@ public class ClientScript : MonoBehaviour
 
     public void TankIsDestroyed(int player)
     {
+        Instantiate(tankExplosion, playerInputs[player].transform.position, Quaternion.identity);
+
         PlayerInput playerInput;
         playerInputs.Remove(player, out playerInput);
         Destroy(playerInput.transform.parent.gameObject);
