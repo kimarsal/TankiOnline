@@ -28,7 +28,7 @@ public class Bullet : MonoBehaviour
     public int MAX_BOUNCES = 3;
     public int nBounces;
     private Vector2 InitVel;
-    private BoxCollider2D boxCollider;
+    private CircleCollider2D boxCollider;
 
     bool _setVelocity = false;
 
@@ -37,7 +37,7 @@ public class Bullet : MonoBehaviour
 
     void Start()
     {
-        boxCollider = GetComponent<BoxCollider2D>();
+        boxCollider = GetComponent<CircleCollider2D>();
         boxCollider.enabled = false;
         StartCoroutine(EnableBoxCollider());
 
@@ -63,7 +63,7 @@ public class Bullet : MonoBehaviour
 
     private IEnumerator EnableBoxCollider()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
         if (isTesting || serverScript != null) boxCollider.enabled = true;
     }
 
@@ -91,12 +91,6 @@ public class Bullet : MonoBehaviour
             }
         }
     }
-
-    /*public void SetPos(Transform canon)
-    {
-
-        
-    }*/
 
     void OnCollisionEnter2D(Collision2D collision)
     {
@@ -135,9 +129,10 @@ public class Bullet : MonoBehaviour
                 
                 Destroy(gameObject);
             }
-            else 
+            else if (collision.gameObject.CompareTag("Bala"))
             {
-                rb.angularVelocity = 0;
+                Instantiate(BulletExplosion, transform.position, Quaternion.identity);
+                Destroy(gameObject);
             }
         }
         else

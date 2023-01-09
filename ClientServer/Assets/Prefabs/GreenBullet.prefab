@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 2796153998330747409}
   - component: {fileID: 8053921694948341308}
   - component: {fileID: 9207729373562946131}
-  - component: {fileID: 1180931146}
   - component: {fileID: 6498444368359597645}
+  - component: {fileID: 1696066178}
   m_Layer: 0
   m_Name: GreenBullet
   m_TagString: Bala
@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 2794223510844637128}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.4, y: 1, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 097151ca76af56144aacb5821e97df3c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 42ac072f8d91edb469feb2065e4d54c4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -114,6 +114,8 @@ MonoBehaviour:
   rb: {fileID: 0}
   curSpeed: 0
   direction: {x: 0, y: 0, z: 0}
+  MAX_BOUNCES: 3
+  nBounces: 0
   TankExplosion: {fileID: 7635705590209404715, guid: 7f08c6de7a2d4fc41940c0b0c7c74a8a, type: 3}
   BulletExplosion: {fileID: 2213975248389802520, guid: 15c557724bcc12d4c99302f111e7d811, type: 3}
 --- !u!50 &9207729373562946131
@@ -137,32 +139,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!61 &1180931146
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2794223510844637128}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.04, y: 0.1}
-    newSize: {x: 0.04, y: 0.1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.04, y: 0.1}
-  m_EdgeRadius: 0
 --- !u!96 &6498444368359597645
 TrailRenderer:
   serializedVersion: 3
@@ -274,3 +250,19 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
+--- !u!58 &1696066178
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2794223510844637128}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.00361979, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.1348108

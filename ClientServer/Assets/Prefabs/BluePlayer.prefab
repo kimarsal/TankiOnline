@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3348838727119411947}
   - component: {fileID: 3348838727119411944}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BluePlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,7 +31,7 @@ Transform:
   m_Children:
   - {fileID: 3348838727776533599}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3348838727119411944
 MonoBehaviour:
@@ -45,14 +45,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6784afe9d53aa148b2c6537b6fe99cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isTesting: 0
+  isTesting: 1
   playerId: 0
   mainCamera: {fileID: 0}
   tankBase: {fileID: 3348838727776533599}
   tankTurret: {fileID: 3348838727846777755}
   tankCannon: {fileID: 6017534412744934920}
-  MinePos: {fileID: 0}
-  Mine: {fileID: 0}
+  MinePos: {fileID: 5560911619243533337}
+  Mine: {fileID: 4045738909771559124, guid: 797ec7f557a30b249aacfcbe251c61ff, type: 3}
   color: Blue
   canItMove: 1
 --- !u!1 &3348838727155903923
@@ -65,7 +65,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3348838727155903922}
   - component: {fileID: 3348838727155903925}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TankBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -150,7 +150,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3348838727612331435}
   - component: {fileID: 3348838727612331434}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TankTurret
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -237,7 +237,7 @@ GameObject:
   - component: {fileID: 3348838727776533596}
   - component: {fileID: 3348838727776533598}
   - component: {fileID: 3236430986248545271}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Tank
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -339,7 +339,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3348838727846777755}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TankTurretParent
   m_TagString: Untagged
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
@@ -371,7 +371,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6017534412744934920}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: CannonEnd
   m_TagString: Untagged
   m_Icon: {fileID: 0}
