@@ -18,6 +18,10 @@ public class TankController : MonoBehaviour
     public float specialFirerate = 2f;
     public GameObject minePrefab;
 
+    public Transform Canon2;
+    public Transform Canon3;
+    public bool redTank = false;
+
 
     private void Awake()
     {
@@ -34,11 +38,12 @@ public class TankController : MonoBehaviour
             GameObject bala = (GameObject)Instantiate(bulletPrefab, Canon.position, Canon.rotation);
 
             bala.GetComponent<Bullet>().SetParams(new Vector2(Canon.position.x - transform.position.x, Canon.position.y - transform.position.y));
-            if(d){
-                GameObject bala2 = (GameObject)Instantiate(bulletPrefab, Canon.position, Canon.rotation);
-                bala2.GetComponent<Bullet>().SetParams(new Vector2(Canon.position.x - transform.position.x, Canon.position.y - transform.position.y));
-                GameObject bala3 = (GameObject)Instantiate(bulletPrefab, Canon.position, Canon.rotation);
-                bala3.GetComponent<Bullet>().SetParams(new Vector2(Canon.position.x - transform.position.x, Canon.position.y - transform.position.y));
+            if(redTank)
+            {
+                GameObject bala2 = (GameObject)Instantiate(bulletPrefab, Canon2.position, Canon2.rotation);
+                bala2.GetComponent<Bullet>().SetParams(new Vector2(Canon2.position.x - transform.position.x, Canon2.position.y - transform.position.y));
+                GameObject bala3 = (GameObject)Instantiate(bulletPrefab, Canon3.position, Canon3.rotation);
+                bala3.GetComponent<Bullet>().SetParams(new Vector2(Canon3.position.x - transform.position.x, Canon3.position.y - transform.position.y));
             }
             StartCoroutine(Shooting());
             return true;
@@ -65,7 +70,9 @@ public class TankController : MonoBehaviour
             {
                 case "Blue": Instantiate(minePrefab, transform.position, transform.rotation); break;
                 case "Green": StartCoroutine(Spurt()); break;
-                case "Red": SpawnBullet(false, -30); SpawnBullet(); SpawnBullet(false, 30); StartCoroutine(Shooting()); break;
+                case "Red": 
+                    SpawnBullet(false, 0); StartCoroutine(Shooting()); 
+                    break;
                 case "White": SpawnBullet(true); break;
             }
 
@@ -83,6 +90,15 @@ public class TankController : MonoBehaviour
         {
             bullet.transform.localScale *= 2f;
             bullet.nBounces = bullet.MAX_BOUNCES;
+        }
+        Debug.Log("Red tank?");
+        Debug.Log(redTank);
+        if (redTank)
+        {
+            GameObject bala2 = (GameObject)Instantiate(bulletPrefab, Canon2.position, Canon2.rotation);
+            bala2.GetComponent<Bullet>().SetParams(new Vector2(Canon2.position.x - transform.position.x, Canon2.position.y - transform.position.y));
+            GameObject bala3 = (GameObject)Instantiate(bulletPrefab, Canon3.position, Canon3.rotation);
+            bala3.GetComponent<Bullet>().SetParams(new Vector2(Canon3.position.x - transform.position.x, Canon3.position.y - transform.position.y));
         }
     }
 

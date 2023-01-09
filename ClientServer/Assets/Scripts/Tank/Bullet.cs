@@ -134,6 +134,12 @@ public class Bullet : MonoBehaviour
                 Instantiate(BulletExplosion, transform.position, Quaternion.identity);
                 Destroy(gameObject);
             }
+            else if (collision.gameObject.CompareTag("Destruible"))
+            {
+                Instantiate(BulletExplosion, transform.position, Quaternion.identity);
+                Destroy(collision.gameObject);
+                Destroy(gameObject);
+            }
         }
         else
         {
