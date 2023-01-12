@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3348838727119411947}
   - component: {fileID: 3348838727119411944}
-  m_Layer: 7
+  m_Layer: 9
   m_Name: BluePlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61,7 +61,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3348838727155903922}
   - component: {fileID: 3348838727155903925}
-  m_Layer: 7
+  m_Layer: 9
   m_Name: TankBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +146,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3348838727612331435}
   - component: {fileID: 3348838727612331434}
-  m_Layer: 7
+  m_Layer: 9
   m_Name: TankTurret
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -233,7 +233,7 @@ GameObject:
   - component: {fileID: 3348838727776533596}
   - component: {fileID: 3348838727776533598}
   - component: {fileID: 3236430986248545271}
-  m_Layer: 7
+  m_Layer: 9
   m_Name: Tank
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -299,6 +299,7 @@ MonoBehaviour:
   Canon: {fileID: 6017534412744934920}
   Canon2: {fileID: 0}
   Canon3: {fileID: 0}
+  MinePos: {fileID: 5560911619243533337}
   bulletPrefab: {fileID: 2794223510844637128, guid: 23925e47f7828f84b8a7460ab940fff8, type: 3}
   minePrefab: {fileID: 4045738909771559124, guid: 797ec7f557a30b249aacfcbe251c61ff, type: 3}
 --- !u!61 &3236430986248545271
@@ -336,7 +337,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3348838727846777755}
-  m_Layer: 7
+  m_Layer: 9
   m_Name: TankTurretParent
   m_TagString: Untagged
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
@@ -368,7 +369,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6017534412744934920}
-  m_Layer: 7
+  m_Layer: 9
   m_Name: CannonEnd
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -399,7 +400,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5560911619243533337}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: MinePosition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -414,7 +415,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7961758396818994786}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.18}
+  m_LocalPosition: {x: 0, y: 0, z: 0.44}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

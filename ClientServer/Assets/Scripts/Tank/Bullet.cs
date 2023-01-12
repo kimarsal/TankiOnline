@@ -124,6 +124,12 @@ public class Bullet : MonoBehaviour
                 Instantiate(BulletExplosion, transform.position, Quaternion.identity);
                 Destroy(gameObject);
             }
+            else if (collision.gameObject.CompareTag("Mina"))
+            {
+                Instantiate(BulletExplosion, transform.position, Quaternion.identity);
+                Destroy(gameObject);
+                collision.gameObject.GetComponent<Mine>().explota();
+            }
             else if (collision.gameObject.CompareTag("Destruible"))
             {
                 Instantiate(BulletExplosion, transform.position, Quaternion.identity);

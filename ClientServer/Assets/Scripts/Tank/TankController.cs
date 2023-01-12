@@ -17,6 +17,7 @@ public class TankController : MonoBehaviour
     public Transform Canon;
     public Transform Canon2;
     public Transform Canon3;
+    public Transform MinePos;
     public GameObject bulletPrefab;
     public GameObject minePrefab;
 
@@ -48,7 +49,7 @@ public class TankController : MonoBehaviour
         {
             switch (tankType)
             {
-                case TankType.BlueTank: Instantiate(minePrefab, transform.position, transform.rotation); break;
+                case TankType.BlueTank: Instantiate(minePrefab, MinePos.position, transform.rotation); break;
                 case TankType.GreenTank: StartCoroutine(Spurt()); break;
                 case TankType.RedTank: SpawnBullet(true); StartCoroutine(Shooting()); break;
                 case TankType.WhiteTank: SpawnBullet(true); StartCoroutine(Shooting()); break;

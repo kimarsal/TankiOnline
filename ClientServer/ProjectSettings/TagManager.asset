@@ -7,6 +7,10 @@ TagManager:
   - Chat
   - Handler
   - Canvas
+  - Pared
+  - Destruible
+  - Bala
+  - Mina
   layers:
   - Default
   - TransparentFX
@@ -17,7 +21,7 @@ TagManager:
   - TankBarrel
   - TankBody
   - Mine
-  - 
+  - BlueTank
   - 
   - 
   - 

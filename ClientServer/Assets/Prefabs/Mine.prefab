@@ -96,9 +96,12 @@ GameObject:
   - component: {fileID: 4045738909771559126}
   - component: {fileID: 4045738909771559125}
   - component: {fileID: 4066635996915403300}
+  - component: {fileID: 2407939444542434377}
+  - component: {fileID: 918918362514477679}
+  - component: {fileID: 6380916887207736446}
   m_Layer: 8
   m_Name: Mine
-  m_TagString: Untagged
+  m_TagString: Mina
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -138,6 +141,9 @@ MonoBehaviour:
   Green: {fileID: 21300000, guid: 42ac072f8d91edb469feb2065e4d54c4, type: 3}
   Red: {fileID: 21300000, guid: 789664ae6d6d6e744af8593fdf0ba07f, type: 3}
   animator: {fileID: 0}
+  TankExplosion: {fileID: 2213975248389802520, guid: 15c557724bcc12d4c99302f111e7d811, type: 3}
+  speed: 1
+  colliderMina: {fileID: 2407939444542434377}
 --- !u!212 &4045738909771559125
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -210,6 +216,59 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!58 &2407939444542434377
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4045738909771559124}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.41582012
+--- !u!58 &918918362514477679
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4045738909771559124}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.12340641
+--- !u!50 &6380916887207736446
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4045738909771559124}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.0001
+  m_LinearDrag: 0
+  m_AngularDrag: 0
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &4045738909930305971
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,7 +281,7 @@ GameObject:
   - component: {fileID: 4045738909930305932}
   m_Layer: 8
   m_Name: GreenSprite
-  m_TagString: Untagged
+  m_TagString: Mina
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
