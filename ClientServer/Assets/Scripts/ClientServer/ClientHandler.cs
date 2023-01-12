@@ -71,6 +71,9 @@ public class ClientHandler : MonoBehaviour
             case "BID":
                 clientScript.BulletIsDestroyed(int.Parse(message.Substring(3, 1)));
                 break;
+            case "OID":
+                clientScript.ObjectIsDestroyed(int.Parse(message.Substring(3, 1)));
+                break;
             case "TID":
                 clientScript.TankIsDestroyed(int.Parse(message.Substring(3, 1)));
                 break;

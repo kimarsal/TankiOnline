@@ -21,6 +21,7 @@ public class ServerScript : MonoBehaviour
     private Dictionary<int, Dictionary<string, bool>> playerKeys;
     private Dictionary<int, Vector2> playerMouseCursorPositions;
     public List<Bullet> bulletList;
+    public List<ObjetoDestruible> objectList;
     private float timeSinceLastUpdate = 0f;
 
     private void Start()
@@ -235,7 +236,13 @@ public class ServerScript : MonoBehaviour
 
     public void ObjectIsDestroyed(ObjetoDestruible objeto)
     {
-
+        int index = objectList.IndexOf(objeto);
+        if(index != -1)
+        {
+            objectList.RemoveAt(index);
+            Destroy(objeto.gameObject);
+            serverHandler.SendToAll("OID" + index);
+        }
     }
 
     public void TankIsDestroyed(int player)

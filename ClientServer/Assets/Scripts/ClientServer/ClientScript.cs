@@ -23,8 +23,9 @@ public class ClientScript : MonoBehaviour
     public GameObject startGameText;
     public GameObject team1WinsText;
     public GameObject team2WinsText;
-    public AudioSource music;
-    public AudioSource sfx;
+    public AudioSource musicSource;
+    public AudioSource fireSource;
+    public AudioSource explosionSource;
 
     [Header("Gameplay")]
     public Transform[] team1Spawns;
@@ -38,6 +39,7 @@ public class ClientScript : MonoBehaviour
     public Dictionary<int, PlayerInput> playerInputs = new Dictionary<int, PlayerInput>();
     public Dictionary<int, PlayerScript> players = new Dictionary<int, PlayerScript>();
     public List<Bullet> bulletList = new List<Bullet>();
+    public List<ObjetoDestruible> objectList;
 
     private int playersOnTeam1;
     private int playersOnTeam2;
@@ -68,6 +70,8 @@ public class ClientScript : MonoBehaviour
         startGameText.SetActive(false);
 
         clientState = ClientState.ChoosingTeam;
+
+        musicSource.Play();
     }
 
     public void ReceiveInfo(string message) //ex: INF312110000
@@ -225,7 +229,7 @@ public class ClientScript : MonoBehaviour
         waitingForPlayersText.SetActive(false);
         StartCoroutine(ShowStartGameText());
 
-        music.Play();
+        musicSource.Play();
     }
 
     private IEnumerator ShowStartGameText()
@@ -392,6 +396,8 @@ public class ClientScript : MonoBehaviour
         bullet.SetParams(playerInputs[player].tankController.GetBulletInitialVelocity(playerInputs[player].tankController.Canon));
         bullet.PreviousPosition = bullet.FuturePosition = playerInputs[player].tankController.Canon.position;
         bulletList.Add(bullet);
+        fireSource.Play();
+
         if (special)
         {
             if (playerInputs[player].tankController.tankType == TankType.WhiteTank)
@@ -405,10 +411,13 @@ public class ClientScript : MonoBehaviour
                 bullet2.SetParams(playerInputs[player].tankController.GetBulletInitialVelocity(playerInputs[player].tankController.Canon2));
                 bullet2.PreviousPosition = bullet2.FuturePosition = playerInputs[player].tankController.Canon2.position;
                 bulletList.Add(bullet2);
+                fireSource.Play();
+
                 Bullet bullet3 = Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankController.Canon3.position, playerInputs[player].tankController.Canon3.rotation).GetComponent<Bullet>();
                 bullet3.SetParams(playerInputs[player].tankController.GetBulletInitialVelocity(playerInputs[player].tankController.Canon3));
                 bullet3.PreviousPosition = bullet3.FuturePosition = playerInputs[player].tankController.Canon3.position;
                 bulletList.Add(bullet3);
+                fireSource.Play();
             }
         }
     }
@@ -428,11 +437,24 @@ public class ClientScript : MonoBehaviour
         GameObject b = bulletList[bullet].gameObject;
         bulletList.RemoveAt(bullet);
         Destroy(b);
+
+        explosionSource.Play();
+    }
+
+    public void ObjectIsDestroyed(int objeto)
+    {
+        Instantiate(bulletExplosion, objectList[objeto].transform.position, Quaternion.identity);
+        GameObject o = objectList[objeto].gameObject;
+        objectList.RemoveAt(objeto);
+        Destroy(o);
+
+        explosionSource.Play();
     }
 
     public void TankIsDestroyed(int player)
     {
         Instantiate(tankExplosion, playerInputs[player].transform.position, Quaternion.identity);
+        explosionSource.Play();
 
         PlayerInput playerInput;
         playerInputs.Remove(player, out playerInput);
@@ -469,7 +491,7 @@ public class ClientScript : MonoBehaviour
         clientHandler.SendToServer("KYUS");
         clientHandler.SendToServer("KYUD");
 
-        music.Stop();
+        musicSource.Stop();
     }
 
     #endregion
