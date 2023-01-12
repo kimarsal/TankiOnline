@@ -21,6 +21,7 @@ public class ServerScript : MonoBehaviour
     private Dictionary<int, Dictionary<string, bool>> playerKeys;
     private Dictionary<int, Vector2> playerMouseCursorPositions;
     public List<Bullet> bulletList;
+    public List<Mine> mineList;
     public List<ObjetoDestruible> objectList;
     private float timeSinceLastUpdate = 0f;
 
@@ -54,6 +55,7 @@ public class ServerScript : MonoBehaviour
             timeSinceLastUpdate = 0f;
             UpdateTanks();
             UpdateBullets();
+            UpdateMines();
         }
 
         MoveTanks();
@@ -130,6 +132,20 @@ public class ServerScript : MonoBehaviour
             message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
         }
         if(bulletList.Count > 0) serverHandler.SendToAll(message);
+    }
+
+    public void UpdateMines()
+    {
+        string message = "UDM";
+        for (int i = 0; i < mineList.Count; i++)
+        {
+            Vector2 pos = mineList[i].transform.position;
+            message += pos.x < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
+            message += pos.y < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
+        }
+        if (mineList.Count > 0) serverHandler.SendToAll(message);
     }
 
     public bool ChooseTeam(string message, int from){
@@ -230,7 +246,7 @@ public class ServerScript : MonoBehaviour
         {
             bulletList.RemoveAt(index);
             Destroy(bullet.gameObject);
-            serverHandler.SendToAll("BID" + index);
+            serverHandler.SendToAll("BID" + index.ToString().PadLeft(2, '0'));
         }
     }
 
@@ -241,7 +257,18 @@ public class ServerScript : MonoBehaviour
         {
             objectList.RemoveAt(index);
             Destroy(objeto.gameObject);
-            serverHandler.SendToAll("OID" + index);
+            serverHandler.SendToAll("OID" + index.ToString().PadLeft(2, '0'));
+        }
+    }
+
+    public void MineIsDestroyed(Mine mine)
+    {
+        int index = mineList.IndexOf(mine);
+        if (index != -1)
+        {
+            mineList.RemoveAt(index);
+            Destroy(mine.gameObject);
+            serverHandler.SendToAll("MID" + index.ToString().PadLeft(2, '0'));
         }
     }
 

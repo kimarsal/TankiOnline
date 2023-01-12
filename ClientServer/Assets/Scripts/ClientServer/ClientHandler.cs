@@ -62,6 +62,9 @@ public class ClientHandler : MonoBehaviour
             case "UDB":
                 clientScript.UpdateBullets(message);
                 break;
+            case "UDM":
+                clientScript.UpdateMines(message);
+                break;
             case "SHN":
                 clientScript.TankShot(int.Parse(message.Substring(3, 1)));
                 break;
@@ -69,10 +72,13 @@ public class ClientHandler : MonoBehaviour
                 clientScript.TankShotSpecial(int.Parse(message.Substring(3, 1)));
                 break;
             case "BID":
-                clientScript.BulletIsDestroyed(int.Parse(message.Substring(3, 1)));
+                clientScript.BulletIsDestroyed(int.Parse(message.Substring(3, 2)));
                 break;
             case "OID":
-                clientScript.ObjectIsDestroyed(int.Parse(message.Substring(3, 1)));
+                clientScript.ObjectIsDestroyed(int.Parse(message.Substring(3, 2)));
+                break;
+            case "MID":
+                clientScript.MineIsDestroyed(int.Parse(message.Substring(3, 2)));
                 break;
             case "TID":
                 clientScript.TankIsDestroyed(int.Parse(message.Substring(3, 1)));

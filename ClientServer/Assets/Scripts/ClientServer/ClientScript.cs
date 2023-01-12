@@ -5,6 +5,8 @@ using TMPro;
 using UnityEngine.UI;
 using System.Drawing;
 using static TankController;
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 
 public class ClientScript : MonoBehaviour
 {
@@ -24,8 +26,7 @@ public class ClientScript : MonoBehaviour
     public GameObject team1WinsText;
     public GameObject team2WinsText;
     public AudioSource musicSource;
-    public AudioSource fireSource;
-    public AudioSource explosionSource;
+    public AudioSource tankSource;
 
     [Header("Gameplay")]
     public Transform[] team1Spawns;
@@ -39,6 +40,7 @@ public class ClientScript : MonoBehaviour
     public Dictionary<int, PlayerInput> playerInputs = new Dictionary<int, PlayerInput>();
     public Dictionary<int, PlayerScript> players = new Dictionary<int, PlayerScript>();
     public List<Bullet> bulletList = new List<Bullet>();
+    public List<Mine> mineList = new List<Mine>();
     public List<ObjetoDestruible> objectList;
 
     private int playersOnTeam1;
@@ -54,7 +56,7 @@ public class ClientScript : MonoBehaviour
     private float timeSinceLastUpdate = 0f;
     private float timeSinceLastMouseUpdate = 0f;
     private float updateDuration = 0f;
-
+    private bool isPlayerMoving = false;
 
     #region Lobby
 
@@ -250,6 +252,7 @@ public class ClientScript : MonoBehaviour
         float percentageComplete = timeSinceLastUpdate / updateDuration;
         MoveTanks(percentageComplete);
         MoveBullets(percentageComplete);
+        MoveMines(percentageComplete);
         CheckForKeys();
     }
 
@@ -271,6 +274,14 @@ public class ClientScript : MonoBehaviour
         for (int i = 0; i < bulletList.Count; i++)
         {
             bulletList[i].transform.position = Vector3.Lerp(bulletList[i].PreviousPosition, bulletList[i].FuturePosition, percentageComplete);
+        }
+    }
+
+    private void MoveMines(float percentageComplete)
+    {
+        for (int i = 0; i < mineList.Count; i++)
+        {
+            mineList[i].transform.position = Vector3.Lerp(mineList[i].PreviousPosition, mineList[i].FuturePosition, percentageComplete);
         }
     }
 
@@ -333,6 +344,32 @@ public class ClientScript : MonoBehaviour
         {
             clientHandler.SendToServer("SHS");
         }
+
+        if(!isPlayerMoving && (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0))
+        {
+            isPlayerMoving = true;
+            StartCoroutine(ChangeTankVolume(1));
+        }
+        else if(isPlayerMoving && Input.GetAxis("Horizontal") == 0 && Input.GetAxis("Vertical") == 0)
+        {
+            isPlayerMoving = false;
+            StartCoroutine(ChangeTankVolume(0));
+        }
+    }
+
+    private IEnumerator ChangeTankVolume(float newVolume)
+    {
+        float previousVolume = tankSource.volume;
+        float duration = 0.3f;
+        float timePassed = 0f;
+
+        while(timePassed <= duration)
+        {
+            float percentage = timePassed / duration;
+            tankSource.volume = Mathf.Lerp(previousVolume, newVolume, percentage);
+            timePassed += 0.05f;
+            yield return new WaitForSeconds(0.05f);
+        }
     }
 
     public void UpdateTanks(string message) //UDT+00.00-00.00180180...
@@ -374,6 +411,19 @@ public class ClientScript : MonoBehaviour
         }
     }
 
+    public void UpdateMines(string message) //UDM+00.00-00.00...
+    {
+        int i = 0;
+        while (3 + i * 12 < message.Length)
+        {
+            float x = float.Parse(message.Substring(3 + i * 12, 6));
+            float y = float.Parse(message.Substring(9 + i * 12, 6));
+            mineList[i].transform.position = mineList[i].PreviousPosition = mineList[i].FuturePosition;
+            mineList[i].FuturePosition = new Vector2(x, y);
+            i++;
+        }
+    }
+
     public void TankShot(int player)
     {
         SpawnBullet(player);
@@ -396,7 +446,6 @@ public class ClientScript : MonoBehaviour
         bullet.SetParams(playerInputs[player].tankController.GetBulletInitialVelocity(playerInputs[player].tankController.Canon));
         bullet.PreviousPosition = bullet.FuturePosition = playerInputs[player].tankController.Canon.position;
         bulletList.Add(bullet);
-        fireSource.Play();
 
         if (special)
         {
@@ -411,13 +460,11 @@ public class ClientScript : MonoBehaviour
                 bullet2.SetParams(playerInputs[player].tankController.GetBulletInitialVelocity(playerInputs[player].tankController.Canon2));
                 bullet2.PreviousPosition = bullet2.FuturePosition = playerInputs[player].tankController.Canon2.position;
                 bulletList.Add(bullet2);
-                fireSource.Play();
 
                 Bullet bullet3 = Instantiate(bulletPrefabs[players[player].TankId - 1], playerInputs[player].tankController.Canon3.position, playerInputs[player].tankController.Canon3.rotation).GetComponent<Bullet>();
                 bullet3.SetParams(playerInputs[player].tankController.GetBulletInitialVelocity(playerInputs[player].tankController.Canon3));
                 bullet3.PreviousPosition = bullet3.FuturePosition = playerInputs[player].tankController.Canon3.position;
                 bulletList.Add(bullet3);
-                fireSource.Play();
             }
         }
     }
@@ -437,8 +484,6 @@ public class ClientScript : MonoBehaviour
         GameObject b = bulletList[bullet].gameObject;
         bulletList.RemoveAt(bullet);
         Destroy(b);
-
-        explosionSource.Play();
     }
 
     public void ObjectIsDestroyed(int objeto)
@@ -447,14 +492,19 @@ public class ClientScript : MonoBehaviour
         GameObject o = objectList[objeto].gameObject;
         objectList.RemoveAt(objeto);
         Destroy(o);
+    }
 
-        explosionSource.Play();
+    public void MineIsDestroyed(int mine)
+    {
+        Instantiate(bulletExplosion, mineList[mine].transform.position, Quaternion.identity);
+        GameObject m = mineList[mine].gameObject;
+        objectList.RemoveAt(mine);
+        Destroy(m);
     }
 
     public void TankIsDestroyed(int player)
     {
         Instantiate(tankExplosion, playerInputs[player].transform.position, Quaternion.identity);
-        explosionSource.Play();
 
         PlayerInput playerInput;
         playerInputs.Remove(player, out playerInput);

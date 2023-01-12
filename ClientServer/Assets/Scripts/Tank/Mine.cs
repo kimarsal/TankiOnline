@@ -12,17 +12,22 @@ public class Mine : MonoBehaviour
     public GameObject TankExplosion;
     public float speed=0.5f;
     public CircleCollider2D colliderMina;
+
+    public Vector2 PreviousPosition;
+    public Vector2 FuturePosition;
+
     private bool explotando;
     private CircleCollider2D areamort;
     private float time=0;
     private float ExplodingTime=0;
     private GameObject[] objetivos;
+
     void ChangeSprite(Sprite change)
     {   
         Debug.Log(change);
         spriteRenderer.sprite = change; 
     }
-    // Start is called before the first frame update
+
     void Start()
     {      
         explotando=false;
@@ -35,7 +40,6 @@ public class Mine : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void Update()
     {   
         if(!explotando){
@@ -66,8 +70,8 @@ public class Mine : MonoBehaviour
             }
             time=0;
         }
-        if(ExplodingTime>4){
-            if(!explotando)explota();
+        if(ExplodingTime>4 && !explotando) {
+            explota();
         }
 
         time+=Time.deltaTime;
@@ -86,6 +90,7 @@ public class Mine : MonoBehaviour
             GameObject explo = Instantiate(TankExplosion, col.transform.position, Quaternion.identity);
         }
     }
+
     void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.CompareTag("Player")){
@@ -94,22 +99,22 @@ public class Mine : MonoBehaviour
         }
     }
 
-    public void explota(){
-            explotando=true;
-            areamort.enabled=true;
-            Destroy(GetComponent<Rigidbody2D>());
-            spriteRenderer.color = new Color(1f,1f,1f,0f);
-            animator.SetBool("boom", true);
-            StartCoroutine(explode());
+    public void explota()
+    {
+        explotando=true;
+        areamort.enabled=true;
+        Destroy(GetComponent<Rigidbody2D>());
+        spriteRenderer.color = new Color(1f,1f,1f,0f);
+        animator.SetBool("boom", true);
+        StartCoroutine(explode());
     }
 
-    IEnumerator explode()
-        {
+    private IEnumerator explode()
+    {
+        yield return new WaitForSeconds(1.1f);
+        Destroy(Mina);
 
-            yield return new WaitForSeconds(1.1f);
-            Destroy(Mina);
-
-        }
+    }
 
 
 }
