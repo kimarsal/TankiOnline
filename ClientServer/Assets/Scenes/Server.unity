@@ -8125,8 +8125,6 @@ MonoBehaviour:
   - {fileID: 1296700630}
   - {fileID: 1248470548}
   team2Spawns:
-  - {fileID: 0}
-  - {fileID: 0}
   - {fileID: 184655925}
   - {fileID: 342886442}
   tankPrefabs:
@@ -8135,6 +8133,7 @@ MonoBehaviour:
   - {fileID: 4250142428939847814, guid: 95cd89bd6def5c34496bac15ef544320, type: 3}
   - {fileID: 4250142428939847814, guid: 3c58bb461906cb54f927dc13b3416776, type: 3}
   bulletList: []
+  mineList: []
   objectList:
   - {fileID: 2057066975}
   - {fileID: 1094665149}
@@ -11285,8 +11284,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 102398200}
   m_HandleRect: {fileID: 102398199}
   m_Direction: 2
-  m_Value: 1.0000008
-  m_Size: 0.87866646
+  m_Value: 1
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

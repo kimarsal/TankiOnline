@@ -177,7 +177,7 @@ public class ServerScript : MonoBehaviour
         if (team == 1) isTeam1Spawn1Taken = true;
         else isTeam2Spawn1Taken = true;
 
-        PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn).GetComponent<PlayerInput>();
+        PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn.position, Quaternion.identity).GetComponent<PlayerInput>();
         playerInput.playerId = from;
         playerInputs.Add(from, playerInput);
 
@@ -239,6 +239,16 @@ public class ServerScript : MonoBehaviour
         bulletList.Add(bullet);
     }
 
+    public void InstantiateExplosion(Vector2 pos)
+    {
+        string message = "IEX";
+        message += pos.x < 0 ? "-" : "+";
+        message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
+        message += pos.y < 0 ? "-" : "+";
+        message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
+        serverHandler.SendToAll(message);
+    }
+
     public void BulletIsDestroyed(Bullet bullet)
     {
         int index = bulletList.IndexOf(bullet);
@@ -276,7 +286,7 @@ public class ServerScript : MonoBehaviour
     {
         PlayerInput playerInput;
         playerInputs.Remove(player, out playerInput);
-        Destroy(playerInput.transform.parent.gameObject);
+        Destroy(playerInput.gameObject);
         serverHandler.SendToAll("TID" + player);
     }
 

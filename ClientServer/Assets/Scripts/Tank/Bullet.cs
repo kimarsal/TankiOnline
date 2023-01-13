@@ -73,7 +73,6 @@ public class Bullet : MonoBehaviour
 
             if (_setVelocity)
             {
-                print(InitVel * speed);
                 rb.velocity = InitVel * speed;
                 rb.gravityScale = 0;
 
@@ -100,7 +99,6 @@ public class Bullet : MonoBehaviour
                     rb.velocity = direction * Mathf.Max(curSpeed, 0);
                     
                     var angle = Mathf.Atan2(rb.velocity.y, rb.velocity.x) * Mathf.Rad2Deg;
-                    Debug.Log(angle);
                     transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
                     rb.angularVelocity = 0;
                     nBounces++;
@@ -155,20 +153,24 @@ public class Bullet : MonoBehaviour
                 }
                 else
                 {
+                    serverScript.InstantiateExplosion(transform.position);
                     serverScript.BulletIsDestroyed(this);
                 }
             }
             else if (collision.gameObject.CompareTag("Player"))
             {
+                serverScript.InstantiateExplosion(transform.position);
                 serverScript.TankIsDestroyed(collision.transform.parent.GetComponent<PlayerInput>().playerId);
                 serverScript.BulletIsDestroyed(this);
             }
             else if (collision.gameObject.CompareTag("Bala"))
             {
+                serverScript.InstantiateExplosion(transform.position);
                 serverScript.BulletIsDestroyed(this);
             }
             else if (collision.gameObject.CompareTag("Destruible"))
             {
+                serverScript.InstantiateExplosion(transform.position);
                 serverScript.ObjectIsDestroyed(collision.gameObject.GetComponent<ObjetoDestruible>());
                 serverScript.BulletIsDestroyed(this);
             }

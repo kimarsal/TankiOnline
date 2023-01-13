@@ -1292,8 +1292,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 125, y: -50}
-  m_SizeDelta: {x: 250, y: 100}
+  m_AnchoredPosition: {x: 122.5, y: -50}
+  m_SizeDelta: {x: 245, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &107756838
 MonoBehaviour:
@@ -2222,7 +2222,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 0
+  m_Spacing: 10
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -9875,6 +9875,7 @@ MonoBehaviour:
   tankExplosion: {fileID: 7635705590209404715, guid: 7f08c6de7a2d4fc41940c0b0c7c74a8a, type: 3}
   bulletExplosion: {fileID: 2213975248389802520, guid: 15c557724bcc12d4c99302f111e7d811, type: 3}
   bulletList: []
+  mineList: []
   objectList:
   - {fileID: 1363063370}
   - {fileID: 2032166816}
@@ -17245,8 +17246,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 375, y: -50}
-  m_SizeDelta: {x: 250, y: 100}
+  m_AnchoredPosition: {x: 377.5, y: -50}
+  m_SizeDelta: {x: 245, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2117975843
 MonoBehaviour:

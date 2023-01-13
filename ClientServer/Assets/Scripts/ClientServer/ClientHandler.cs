@@ -71,6 +71,9 @@ public class ClientHandler : MonoBehaviour
             case "SHS":
                 clientScript.TankShotSpecial(int.Parse(message.Substring(3, 1)));
                 break;
+            case "IEX":
+                clientScript.InstantiateExplosion(message);
+                break;
             case "BID":
                 clientScript.BulletIsDestroyed(int.Parse(message.Substring(3, 2)));
                 break;

@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using System.Drawing;
 using static TankController;
 using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 
 public class ClientScript : MonoBehaviour
 {
@@ -173,9 +172,9 @@ public class ClientScript : MonoBehaviour
         if (players[player].TeamId == 1) isTeam1Spawn1Taken = true;
         else isTeam2Spawn1Taken = true;
 
-        PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn).GetComponent<PlayerInput>();
+        PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn.position, Quaternion.identity).GetComponent<PlayerInput>();
         playerInput.playerId = player;
-        players[player].PreviousPosition = spawn.position;
+        players[player].PreviousPosition = players[player].FuturePosition = spawn.position;
         playerInputs.Add(player, playerInput);
     }
 
@@ -478,9 +477,15 @@ public class ClientScript : MonoBehaviour
         }
     }
 
+    public void InstantiateExplosion(string message) //IEX+00.00-00.00
+    {
+        float x = float.Parse(message.Substring(3, 6));
+        float y = float.Parse(message.Substring(9, 6));
+        GameObject explosion = Instantiate(bulletExplosion, new Vector2(x, y), Quaternion.identity);
+    }
+
     public void BulletIsDestroyed(int bullet)
     {
-        Instantiate(bulletExplosion, bulletList[bullet].transform.position, Quaternion.identity);
         GameObject b = bulletList[bullet].gameObject;
         bulletList.RemoveAt(bullet);
         Destroy(b);
@@ -488,7 +493,6 @@ public class ClientScript : MonoBehaviour
 
     public void ObjectIsDestroyed(int objeto)
     {
-        Instantiate(bulletExplosion, objectList[objeto].transform.position, Quaternion.identity);
         GameObject o = objectList[objeto].gameObject;
         objectList.RemoveAt(objeto);
         Destroy(o);
@@ -496,7 +500,6 @@ public class ClientScript : MonoBehaviour
 
     public void MineIsDestroyed(int mine)
     {
-        Instantiate(bulletExplosion, mineList[mine].transform.position, Quaternion.identity);
         GameObject m = mineList[mine].gameObject;
         objectList.RemoveAt(mine);
         Destroy(m);
@@ -504,11 +507,9 @@ public class ClientScript : MonoBehaviour
 
     public void TankIsDestroyed(int player)
     {
-        Instantiate(tankExplosion, playerInputs[player].transform.position, Quaternion.identity);
-
         PlayerInput playerInput;
         playerInputs.Remove(player, out playerInput);
-        Destroy(playerInput.transform.parent.gameObject);
+        Destroy(playerInput.gameObject);
 
         if (!isGameOn) return;
 
