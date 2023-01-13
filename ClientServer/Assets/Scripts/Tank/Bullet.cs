@@ -25,7 +25,6 @@ public class Bullet : MonoBehaviour
 
     bool _setVelocity = false;
 
-
     void Start()
     {
         boxCollider = GetComponent<CircleCollider2D>();
@@ -112,9 +111,7 @@ public class Bullet : MonoBehaviour
             else if (collision.gameObject.CompareTag("Player"))
             {
                 Destroy(collision.transform.parent.gameObject);
-                //collision.GetComponent<PlayerCombat>().Die();
-                GameObject explo = Instantiate(TankExplosion, transform.position, Quaternion.identity);
-                
+                Instantiate(TankExplosion, transform.position, Quaternion.identity);
                 Destroy(gameObject);
             }
             else if (collision.gameObject.CompareTag("Bala"))

@@ -239,6 +239,16 @@ public class ServerScript : MonoBehaviour
         bulletList.Add(bullet);
     }
 
+    public void AddMine(Mine mine)
+    {
+        mineList.Add(mine);
+    }
+
+    public void RemoveMine(Mine mine)
+    {
+        mineList.Remove(mine);
+    }
+
     public void InstantiateExplosion(Vector2 pos)
     {
         string message = "IEX";
@@ -276,8 +286,6 @@ public class ServerScript : MonoBehaviour
         int index = mineList.IndexOf(mine);
         if (index != -1)
         {
-            mineList.RemoveAt(index);
-            Destroy(mine.gameObject);
             serverHandler.SendToAll("MID" + index.ToString().PadLeft(2, '0'));
         }
     }

@@ -5,45 +5,92 @@ using UnityEngine;
 public class Mine : MonoBehaviour
 {
     public SpriteRenderer spriteRenderer;
-    public GameObject Mina;
     public Sprite Green;
     public Sprite Red;
     public GameObject TankExplosion;
     public float speed = 0.5f;
     public CircleCollider2D colliderMina;
     public CircleCollider2D areaMort;
-
-    public Vector2 PreviousPosition;
-    public Vector2 FuturePosition;
+    private bool isTesting = false;
 
     private Animator animator;
     private bool explotando;
     private float time = 0;
     private float ExplodingTime = 0;
-    private GameObject[] objetivos;
+    private List<GameObject> objetivos;
 
-    void ChangeSprite(Sprite change)
-    {
-        spriteRenderer.sprite = change;
-    }
+    public Vector2 PreviousPosition;
+    public Vector2 FuturePosition;
+    private ServerScript serverScript;
+    private ClientScript clientScript;
 
     void Start()
     {
-        explotando = false;
-        objetivos = new GameObject[3];
-        objetivos[0] = GameObject.Find("GreenPlayer/Tank");
-        objetivos[1] = GameObject.Find("WhitePlayer/Tank");
-        objetivos[2] = GameObject.Find("RedPlayer/Tank");
         animator = GetComponent<Animator>();
+
+        GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
+        if (canvas == null)
+        {
+            isTesting = true;
+        }
+        else
+        {
+            serverScript = canvas.GetComponent<ServerScript>();
+            if (serverScript != null)
+            {
+                serverScript.AddMine(this);
+            }
+            else
+            {
+                clientScript = canvas.GetComponent<ClientScript>();
+                return;
+            }
+        }
+
+        explotando = false;
+        objetivos = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+        for(int i = 0; i < objetivos.Count; i++)
+        {
+            if (objetivos[i].transform.parent.name.Contains("Blue"))
+            {
+                objetivos.RemoveAt(i);
+                break;
+            }
+        }
+
     }
 
     void Update()
+    {
+        if(isTesting || serverScript != null)
+        {
+            MoveMine();
+        }
+
+        if (time > 1)
+        {
+            if (spriteRenderer.sprite == Red)
+            {
+                ChangeSprite(Green);
+            }
+            else if (spriteRenderer.sprite == Green)
+            {
+                ChangeSprite(Red);
+            }
+            time = 0;
+        }
+
+        time += Time.deltaTime;
+        ExplodingTime += Time.deltaTime;
+    }
+
+    private void MoveMine()
     {
         if (!explotando)
         {
             float mindist = -1;
             GameObject mesProper = null;
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < objetivos.Count; i++)
             {
                 GameObject actual = objetivos[i];
                 if (actual != null)
@@ -63,43 +110,53 @@ public class Mine : MonoBehaviour
             }
         }
 
-        if (time > 1)
-        {
-            if (spriteRenderer.sprite == Red)
-            {
-                ChangeSprite(Green);
-            }
-            else if (spriteRenderer.sprite == Green)
-            {
-                ChangeSprite(Red);
-            }
-            time = 0;
-        }
         if (ExplodingTime > 4 && !explotando)
         {
             explota();
         }
+    }
 
-        time += Time.deltaTime;
-        ExplodingTime += Time.deltaTime;
+    void ChangeSprite(Sprite change)
+    {
+        spriteRenderer.sprite = change;
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        Debug.Log(col.gameObject.tag);
-        if (col.gameObject.CompareTag("Player"))
+        if (isTesting)
         {
-            Destroy(col.transform.parent.gameObject);
-            GameObject explo = Instantiate(TankExplosion, col.transform.position, Quaternion.identity);
+            if (col.gameObject.CompareTag("Player"))
+            {
+                Destroy(col.transform.parent.gameObject);
+                Instantiate(TankExplosion, col.transform.position, Quaternion.identity);
+            }
+            else if (col.gameObject.CompareTag("Destruible"))
+            {
+                Destroy(col.gameObject);
+                Instantiate(TankExplosion, col.transform.position, Quaternion.identity);
+            }
         }
-        else if (col.gameObject.CompareTag("Destruible"))
+        else
         {
-            Destroy(col.gameObject);
-            GameObject explo = Instantiate(TankExplosion, col.transform.position, Quaternion.identity);
+            if (col.gameObject.CompareTag("Player"))
+            {
+                serverScript.InstantiateExplosion(col.transform.position);
+                serverScript.TankIsDestroyed(col.transform.parent.GetComponent<PlayerInput>().playerId);
+            }
+            else if (col.gameObject.CompareTag("Bala"))
+            {
+                serverScript.InstantiateExplosion(transform.position);
+                serverScript.BulletIsDestroyed(col.gameObject.GetComponent<Bullet>());
+            }
+            else if (col.gameObject.CompareTag("Destruible"))
+            {
+                serverScript.InstantiateExplosion(transform.position);
+                serverScript.ObjectIsDestroyed(col.gameObject.GetComponent<ObjetoDestruible>());
+            }
         }
     }
 
-    void OnCollisionEnter2D(Collision2D col)
+    private void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.CompareTag("Player"))
         {
@@ -110,10 +167,24 @@ public class Mine : MonoBehaviour
 
     public void explota()
     {
+        if(serverScript != null)
+        {
+            serverScript.MineIsDestroyed(this);
+        }
+
         explotando = true;
         areaMort.enabled = true;
         colliderMina.enabled = false;
         GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+        SetExplosion();
+    }
+
+    public void SetExplosion()
+    {
+        if(serverScript == null)
+        {
+            GetComponent<AudioSource>().Play();
+        }
         spriteRenderer.color = new Color(1f, 1f, 1f, 0f);
         animator.SetBool("boom", true);
         StartCoroutine(explode());
@@ -122,8 +193,15 @@ public class Mine : MonoBehaviour
     private IEnumerator explode()
     {
         yield return new WaitForSeconds(1.1f);
-        Destroy(Mina);
-
+        if(serverScript != null)
+        {
+            serverScript.RemoveMine(this);
+        }
+        else if(clientScript != null)
+        {
+            clientScript.RemoveMine(this);
+        }
+        Destroy(gameObject);
     }
 
 

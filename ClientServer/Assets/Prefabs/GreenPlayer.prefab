@@ -48,11 +48,9 @@ MonoBehaviour:
   isTesting: 0
   playerId: 0
   mainCamera: {fileID: 0}
-  tankBase: {fileID: 57487840809627634}
-  tankTurret: {fileID: 57487840871481398}
-  tankCannon: {fileID: 7978432817652017289}
   MinePos: {fileID: 0}
   Mine: {fileID: 0}
+  tankController: {fileID: 0}
 --- !u!1 &57487840222559774
 GameObject:
   m_ObjectHideFlags: 0
@@ -300,6 +298,7 @@ MonoBehaviour:
   Canon: {fileID: 7978432817652017289}
   Canon2: {fileID: 0}
   Canon3: {fileID: 0}
+  MinePos: {fileID: 0}
   bulletPrefab: {fileID: 2794223510844637128, guid: 157f65a276c883d4c89e332fddccbfd5, type: 3}
   minePrefab: {fileID: 4045738909771559124, guid: 797ec7f557a30b249aacfcbe251c61ff, type: 3}
 --- !u!61 &3468103652313612906

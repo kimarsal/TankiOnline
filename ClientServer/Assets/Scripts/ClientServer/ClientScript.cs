@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Drawing;
 using static TankController;
 using Unity.VisualScripting;
+using System;
 
 public class ClientScript : MonoBehaviour
 {
@@ -359,7 +360,7 @@ public class ClientScript : MonoBehaviour
     private IEnumerator ChangeTankVolume(float newVolume)
     {
         float previousVolume = tankSource.volume;
-        float duration = 0.3f;
+        float duration = 0.2f;
         float timePassed = 0f;
 
         while(timePassed <= duration)
@@ -432,7 +433,7 @@ public class ClientScript : MonoBehaviour
     {
         switch (playerInputs[player].tankController.tankType)
         {
-            case TankType.BlueTank: Instantiate(minePrefab, playerInputs[player].MinePos.position, minePrefab.transform.rotation); /*TODO: treure habilitat de matar :)*/break;
+            case TankType.BlueTank: SpawnMine(player); break;
             case TankType.GreenTank: StartCoroutine(Spurt(player)); break;
             case TankType.RedTank: SpawnBullet(player, true); break;
             case TankType.WhiteTank: SpawnBullet(player, true); break;
@@ -477,6 +478,18 @@ public class ClientScript : MonoBehaviour
         }
     }
 
+    private void SpawnMine(int player)
+    {
+        Mine mine = Instantiate(minePrefab, playerInputs[player].MinePos.position, minePrefab.transform.rotation).GetComponent<Mine>();
+        mine.PreviousPosition = mine.FuturePosition = playerInputs[player].MinePos.position;
+        mineList.Add(mine);
+    }
+
+    public void RemoveMine(Mine mine)
+    {
+        mineList.Remove(mine);
+    }
+
     public void InstantiateExplosion(string message) //IEX+00.00-00.00
     {
         float x = float.Parse(message.Substring(3, 6));
@@ -500,9 +513,7 @@ public class ClientScript : MonoBehaviour
 
     public void MineIsDestroyed(int mine)
     {
-        GameObject m = mineList[mine].gameObject;
-        objectList.RemoveAt(mine);
-        Destroy(m);
+        mineList[mine].SetExplosion();
     }
 
     public void TankIsDestroyed(int player)
