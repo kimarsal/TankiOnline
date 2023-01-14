@@ -38,6 +38,7 @@ public class Mine : MonoBehaviour
             serverScript = canvas.GetComponent<ServerScript>();
             if (serverScript != null)
             {
+                Destroy(GetComponent<SpriteRenderer>());
                 serverScript.AddMine(this);
             }
             else
@@ -184,8 +185,11 @@ public class Mine : MonoBehaviour
         {
             GetComponent<AudioSource>().Play();
         }
-        spriteRenderer.color = new Color(1f, 1f, 1f, 0f);
-        animator.SetBool("boom", true);
+        else
+        {
+            spriteRenderer.color = new Color(1f, 1f, 1f, 0f);
+            animator.SetBool("boom", true);
+        }
         StartCoroutine(explode());
     }
 

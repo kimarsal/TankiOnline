@@ -44,6 +44,8 @@ public class Bullet : MonoBehaviour
         serverScript = canvas.GetComponent<ServerScript>();
         if (serverScript != null)
         {
+            Destroy(GetComponent<SpriteRenderer>());
+            Destroy(GetComponent<TrailRenderer>());
             serverScript.AddBullet(this);
             return;
         }

@@ -32,6 +32,22 @@ public class TankController : MonoBehaviour
         rb2d=GetComponent<Rigidbody2D>();
     }
 
+    private void Start()
+    {
+        GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
+        if (canvas == null)
+        {
+            return;
+        }
+        if (canvas.GetComponent<ServerScript>() != null)
+        {
+            foreach(SpriteRenderer spriteRenderer in transform.GetComponentsInChildren<SpriteRenderer>())
+            {
+                Destroy(spriteRenderer);
+            }
+        }
+    }
+
     public bool HandleShoot()
     {
         if (CanShoot)

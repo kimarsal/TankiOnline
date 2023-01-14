@@ -226,7 +226,6 @@ public class ClientScript : MonoBehaviour
 
     private void StartGame()
     {
-        isGameOn = true;
         clientState = ClientState.Playing;
         waitingForPlayersText.SetActive(false);
         StartCoroutine(StartGameCoroutine());
@@ -239,6 +238,7 @@ public class ClientScript : MonoBehaviour
         yield return new WaitForSeconds(startSource.clip.length);
         readyText.SetActive(false);
 
+        isGameOn = true;
         goText.SetActive(true);
         musicSource.Play();
         yield return new WaitForSeconds(1);
@@ -303,7 +303,7 @@ public class ClientScript : MonoBehaviour
             clientHandler.SendToServer(message);
         }
 
-        if (!isGameOn) return;
+        if (!isGameOn || !playerInputs.ContainsKey(playerId)) return;
 
         if (Input.GetKeyDown(KeyCode.W))
         {
@@ -525,6 +525,11 @@ public class ClientScript : MonoBehaviour
         PlayerInput playerInput;
         playerInputs.Remove(player, out playerInput);
         Destroy(playerInput.gameObject);
+
+        if(player == playerId)
+        {
+            StartCoroutine(ChangeTankVolume(0));
+        }
 
         if (!isGameOn) return;
 
