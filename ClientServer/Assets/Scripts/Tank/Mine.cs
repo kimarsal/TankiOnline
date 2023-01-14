@@ -48,13 +48,12 @@ public class Mine : MonoBehaviour
         }
 
         explotando = false;
-        objetivos = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
-        for(int i = 0; i < objetivos.Count; i++)
+        objetivos = new List<GameObject>();
+        foreach(GameObject objetivo in GameObject.FindGameObjectsWithTag("Player"))
         {
-            if (objetivos[i].transform.parent.name.Contains("Blue"))
+            if (!objetivo.transform.parent.name.Contains("Blue"))
             {
-                objetivos.RemoveAt(i);
-                break;
+                objetivos.Add(objetivo);
             }
         }
 

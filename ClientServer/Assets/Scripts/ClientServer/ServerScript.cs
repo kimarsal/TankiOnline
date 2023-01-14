@@ -25,6 +25,8 @@ public class ServerScript : MonoBehaviour
     public List<ObjetoDestruible> objectList;
     private float timeSinceLastUpdate = 0f;
 
+    #region Lobby
+
     private void Start()
     {
         serverHandler = GameObject.FindGameObjectWithTag("Handler").GetComponent<ServerHandler>();
@@ -45,7 +47,81 @@ public class ServerScript : MonoBehaviour
         }
 
         bulletList = new List<Bullet>();
+        mineList = new List<Mine>();
     }
+
+    public string GetInfo(int id)
+    {
+        string message = "INF" + id.ToString();
+        for (int i = 1; i <= 4; i++)
+        {
+            if (players.ContainsKey(i))
+            {
+                message += players[i].TeamId;
+                message += players[i].TankId;
+            }
+            else
+            {
+                message += "00";
+            }
+        }
+        return message;
+    }
+
+    public bool ChooseTeam(string message, int from)
+    {
+        int team = int.Parse(message.Substring(4, 1));
+        if (team == 1 && playersOnTeam1 < 2)
+        {
+            playersOnTeam1++;
+            players.Add(from, new PlayerScript(team));
+            return true;
+        }
+        else if (team == 2 && playersOnTeam2 < 2)
+        {
+            playersOnTeam2++;
+            players.Add(from, new PlayerScript(team));
+            return true;
+        }
+        return false;
+    }
+
+    public bool ChooseTank(string message, int from)
+    {
+        int tank = int.Parse(message.Substring(4, 1));
+        int team = players[from].TeamId;
+        foreach (KeyValuePair<int, PlayerScript> p in players)
+        {
+            if (p.Value.TankId == tank) return false;
+        }
+        players[from].SetTank(tank);
+
+        Transform spawn = team == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0];
+        if (team == 1) isTeam1Spawn1Taken = true;
+        else isTeam2Spawn1Taken = true;
+
+        PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn.position, Quaternion.identity).GetComponent<PlayerInput>();
+        playerInput.playerId = from;
+        playerInputs.Add(from, playerInput);
+
+        return true;
+    }
+
+    public void ChangeKeyState(int from, string key, bool pressed)
+    {
+        playerKeys[from][key] = pressed;
+    }
+
+    public void MoveMouseCursor(int from, string message)
+    {
+        float x = float.Parse(message.Substring(3, 6));
+        float y = float.Parse(message.Substring(9, 6));
+        playerMouseCursorPositions[from] = new Vector2(x, y);
+    }
+
+    #endregion
+
+    #region Game
 
     private void Update()
     {
@@ -83,7 +159,7 @@ public class ServerScript : MonoBehaviour
                 horizontal++;
             }
 
-            if (playerInputs.ContainsKey(i)) //Prescindible en el joc final
+            if (playerInputs.ContainsKey(i))
             {
                 playerInputs[i].GetBodyMovement(new Vector2(horizontal, vertical));
                 playerInputs[i].GetTurretMovement(playerMouseCursorPositions[i]);
@@ -148,69 +224,6 @@ public class ServerScript : MonoBehaviour
         if (mineList.Count > 0) serverHandler.SendToAll(message);
     }
 
-    public bool ChooseTeam(string message, int from){
-        int team = int.Parse(message.Substring(4, 1));
-        if (team == 1 && playersOnTeam1 < 2){
-            playersOnTeam1++;
-            players.Add(from, new PlayerScript(team));
-            return true;
-        }
-        else if(team == 2 && playersOnTeam2 < 2){
-            playersOnTeam2++;
-            players.Add(from, new PlayerScript(team));
-            return true;
-        }
-        return false;
-    }
-
-    public bool ChooseTank(string message, int from)
-    {
-        int tank = int.Parse(message.Substring(4, 1));
-        int team = players[from].TeamId;
-        foreach(KeyValuePair<int, PlayerScript> p in players)
-        {
-            if (p.Value.TankId == tank) return false;
-        }
-        players[from].SetTank(tank);
-
-        Transform spawn = team == 1 ? team1Spawns[isTeam1Spawn1Taken ? 1 : 0] : team2Spawns[isTeam2Spawn1Taken ? 1 : 0];
-        if (team == 1) isTeam1Spawn1Taken = true;
-        else isTeam2Spawn1Taken = true;
-
-        PlayerInput playerInput = Instantiate(tankPrefabs[tank - 1], spawn.position, Quaternion.identity).GetComponent<PlayerInput>();
-        playerInput.playerId = from;
-        playerInputs.Add(from, playerInput);
-
-        return true;
-    }
-
-    public string GetInfo(int id){
-        string message = "INF" + id.ToString();
-        for(int i = 1; i <= 4; i++){
-            if (players.ContainsKey(i))
-            {
-                message += players[i].TeamId;
-                message += players[i].TankId;
-            }
-            else
-            {
-                message += "00";
-            }
-        }
-        return message;
-    }
-
-    public void ChangeKeyState(int from, string key, bool pressed)
-    {
-        playerKeys[from][key] = pressed;
-    }
-
-    public void MoveMouseCursor(int from, string message)
-    {
-        float x = float.Parse(message.Substring(3, 6));
-        float y = float.Parse(message.Substring(9, 6));
-        playerMouseCursorPositions[from] = new Vector2(x, y);
-    }
 
     public void TryToShoot(int from)
     {
@@ -286,7 +299,7 @@ public class ServerScript : MonoBehaviour
         int index = mineList.IndexOf(mine);
         if (index != -1)
         {
-            serverHandler.SendToAll("MID" + index.ToString().PadLeft(2, '0'));
+            serverHandler.SendToAll("MID" + index.ToString());
         }
     }
 
@@ -295,7 +308,9 @@ public class ServerScript : MonoBehaviour
         PlayerInput playerInput;
         playerInputs.Remove(player, out playerInput);
         Destroy(playerInput.gameObject);
-        serverHandler.SendToAll("TID" + player);
+        serverHandler.SendToAll("TID" + player.ToString());
     }
+
+    #endregion Game
 
 }

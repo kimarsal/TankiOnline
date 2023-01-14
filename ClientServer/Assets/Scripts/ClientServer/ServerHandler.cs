@@ -47,6 +47,7 @@ public class ServerHandler : MonoBehaviour
     private void ClientDisconnected(int id)
     {
         WriteOnChat("Client " + id + " disconnected");
+        serverScript.TankIsDestroyed(id);
     }
 
     private void WriteOnChat(string message)

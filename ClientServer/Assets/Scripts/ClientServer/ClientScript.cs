@@ -22,11 +22,14 @@ public class ClientScript : MonoBehaviour
     public Button[] tankButtons;
     public GameObject waitingForPlayersText;
     public GameObject gameIsFullText;
-    public GameObject startGameText;
+    public GameObject readyText;
+    public GameObject goText;
     public GameObject team1WinsText;
     public GameObject team2WinsText;
-    public AudioSource musicSource;
     public AudioSource tankSource;
+    public AudioSource startSource;
+    public AudioSource musicSource;
+    public AudioSource endingSource;
 
     [Header("Gameplay")]
     public Transform[] team1Spawns;
@@ -34,8 +37,7 @@ public class ClientScript : MonoBehaviour
     public GameObject[] tankPrefabs;
     public GameObject[] bulletPrefabs;
     public GameObject minePrefab;
-    public GameObject tankExplosion;
-    public GameObject bulletExplosion;
+    public GameObject explosionPrefab;
 
     public Dictionary<int, PlayerInput> playerInputs = new Dictionary<int, PlayerInput>();
     public Dictionary<int, PlayerScript> players = new Dictionary<int, PlayerScript>();
@@ -52,7 +54,7 @@ public class ClientScript : MonoBehaviour
     private int selectedTeam;
     private int selectedTank;
 
-    private bool isGameOn = true;
+    private bool isGameOn = false;
     private float timeSinceLastUpdate = 0f;
     private float timeSinceLastMouseUpdate = 0f;
     private float updateDuration = 0f;
@@ -69,11 +71,9 @@ public class ClientScript : MonoBehaviour
         chooseTankContainer.SetActive(false);
         waitingForPlayersText.SetActive(false);
         gameIsFullText.SetActive(false);
-        startGameText.SetActive(false);
+        goText.SetActive(false);
 
         clientState = ClientState.ChoosingTeam;
-
-        musicSource.Play();
     }
 
     public void ReceiveInfo(string message) //ex: INF312110000
@@ -229,16 +229,20 @@ public class ClientScript : MonoBehaviour
         isGameOn = true;
         clientState = ClientState.Playing;
         waitingForPlayersText.SetActive(false);
-        StartCoroutine(ShowStartGameText());
-
-        musicSource.Play();
+        StartCoroutine(StartGameCoroutine());
     }
 
-    private IEnumerator ShowStartGameText()
+    private IEnumerator StartGameCoroutine()
     {
-        startGameText.SetActive(true);
+        readyText.SetActive(true);
+        startSource.Play();
+        yield return new WaitForSeconds(startSource.clip.length);
+        readyText.SetActive(false);
+
+        goText.SetActive(true);
+        musicSource.Play();
         yield return new WaitForSeconds(1);
-        startGameText.SetActive(false);
+        goText.SetActive(false);
     }
 
     #endregion
@@ -494,7 +498,7 @@ public class ClientScript : MonoBehaviour
     {
         float x = float.Parse(message.Substring(3, 6));
         float y = float.Parse(message.Substring(9, 6));
-        GameObject explosion = Instantiate(bulletExplosion, new Vector2(x, y), Quaternion.identity);
+        Instantiate(explosionPrefab, new Vector2(x, y), Quaternion.identity);
     }
 
     public void BulletIsDestroyed(int bullet)
@@ -554,6 +558,7 @@ public class ClientScript : MonoBehaviour
         clientHandler.SendToServer("KYUD");
 
         musicSource.Stop();
+        endingSource.Play();
     }
 
     #endregion

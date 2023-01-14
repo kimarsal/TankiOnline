@@ -81,7 +81,7 @@ public class ClientHandler : MonoBehaviour
                 clientScript.ObjectIsDestroyed(int.Parse(message.Substring(3, 2)));
                 break;
             case "MID":
-                clientScript.MineIsDestroyed(int.Parse(message.Substring(3, 2)));
+                clientScript.MineIsDestroyed(int.Parse(message.Substring(3, 1)));
                 break;
             case "TID":
                 clientScript.TankIsDestroyed(int.Parse(message.Substring(3, 1)));
