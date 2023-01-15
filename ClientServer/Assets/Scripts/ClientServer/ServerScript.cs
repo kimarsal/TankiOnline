@@ -35,17 +35,6 @@ public class ServerScript : MonoBehaviour
         playerKeys = new Dictionary<int, Dictionary<string, bool>>();
         playerMouseCursorPositions = new Dictionary<int, Vector2>();
 
-        for (int i = 1; i <= 4; i++)
-        {
-            playerKeys.Add(i, new Dictionary<string, bool>());
-            playerKeys[i].Add("W", false);
-            playerKeys[i].Add("A", false);
-            playerKeys[i].Add("S", false);
-            playerKeys[i].Add("D", false);
-
-            playerMouseCursorPositions.Add(i, Vector2.zero);
-        }
-
         bulletList = new List<Bullet>();
         mineList = new List<Mine>();
     }
@@ -53,17 +42,15 @@ public class ServerScript : MonoBehaviour
     public string GetInfo(int id)
     {
         string message = "INF" + id.ToString();
-        for (int i = 1; i <= 4; i++)
+        foreach(KeyValuePair<int, PlayerScript> pair in players)
         {
-            if (players.ContainsKey(i))
-            {
-                message += players[i].TeamId;
-                message += players[i].TankId;
-            }
-            else
-            {
-                message += "00";
-            }
+            message += pair.Key;
+            message += pair.Value.TeamId;
+            message += pair.Value.TankId;
+        }
+        for(int i = 0; i < 4 - players.Count; i++)
+        {
+            message += "000";
         }
         return message;
     }
@@ -74,16 +61,29 @@ public class ServerScript : MonoBehaviour
         if (team == 1 && playersOnTeam1 < 2)
         {
             playersOnTeam1++;
-            players.Add(from, new PlayerScript(team));
+            AddPlayer(from, team);
             return true;
         }
         else if (team == 2 && playersOnTeam2 < 2)
         {
             playersOnTeam2++;
-            players.Add(from, new PlayerScript(team));
+            AddPlayer(from, team);
             return true;
         }
         return false;
+    }
+
+    private void AddPlayer(int from, int team)
+    {
+        players.Add(from, new PlayerScript(team));
+
+        playerKeys.Add(from, new Dictionary<string, bool>());
+        playerKeys[from].Add("W", false);
+        playerKeys[from].Add("A", false);
+        playerKeys[from].Add("S", false);
+        playerKeys[from].Add("D", false);
+
+        playerMouseCursorPositions.Add(from, Vector2.zero);
     }
 
     public bool ChooseTank(string message, int from)
@@ -139,60 +139,50 @@ public class ServerScript : MonoBehaviour
 
     private void MoveTanks()
     {
-        int horizontal = 0, vertical = 0;
-        for (int i = 1; i <= 4; i++)
+        foreach(KeyValuePair<int, PlayerInput> pair in playerInputs)
         {
-            if (playerKeys[i]["W"])
+            int horizontal = 0, vertical = 0;
+            if (playerKeys[pair.Key]["W"])
             {
                 vertical++;
             }
-            if (playerKeys[i]["A"])
+            if (playerKeys[pair.Key]["A"])
             {
                 horizontal--;
             }
-            if (playerKeys[i]["S"])
+            if (playerKeys[pair.Key]["S"])
             {
                 vertical--;
             }
-            if (playerKeys[i]["D"])
+            if (playerKeys[pair.Key]["D"])
             {
                 horizontal++;
             }
 
-            if (playerInputs.ContainsKey(i))
-            {
-                playerInputs[i].GetBodyMovement(new Vector2(horizontal, vertical));
-                playerInputs[i].GetTurretMovement(playerMouseCursorPositions[i]);
-            }
-            horizontal = vertical = 0;
+            pair.Value.GetBodyMovement(new Vector2(horizontal, vertical));
+            pair.Value.GetTurretMovement(playerMouseCursorPositions[pair.Key]);
         }
     }
 
     private void UpdateTanks()
     {
         string message = "UDT";
-        for (int i = 1; i <= 4; i++)
+        foreach (KeyValuePair<int, PlayerInput> pair in playerInputs)
         {
-            if (playerInputs.ContainsKey(i)) //Prescindible en el joc final
-            {
-                Vector2 pos = playerInputs[i].tankController.transform.position;
-                message += pos.x < 0 ? "-" : "+";
-                message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
-                message += pos.y < 0 ? "-" : "+";
-                message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
+            Vector2 pos = pair.Value.tankController.transform.position;
+            message += pos.x < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.x).ToString("F2").PadLeft(5, '0');
+            message += pos.y < 0 ? "-" : "+";
+            message += Mathf.Abs(pos.y).ToString("F2").PadLeft(5, '0');
 
-                float angleBase = playerInputs[i].tankController.transform.rotation.eulerAngles.z % 360;
-                if (angleBase < 0) angleBase = 0;
-                message += Mathf.FloorToInt(angleBase).ToString().PadLeft(3, '0');
-                float angleTurret = playerInputs[i].tankController.turretParent.rotation.eulerAngles.z % 360;
-                if (angleTurret < 0) angleTurret = 0;
-                message += Mathf.FloorToInt(angleTurret).ToString().PadLeft(3, '0');
-            }
-            else
-            {
-                message += "+00.00+00.00000000";
-            }
+            float angleBase = pair.Value.tankController.transform.rotation.eulerAngles.z % 360;
+            if (angleBase < 0) angleBase = 0;
+            message += Mathf.FloorToInt(angleBase).ToString().PadLeft(3, '0');
+            float angleTurret = pair.Value.tankController.turretParent.rotation.eulerAngles.z % 360;
+            if (angleTurret < 0) angleTurret = 0;
+            message += Mathf.FloorToInt(angleTurret).ToString().PadLeft(3, '0');
         }
+        //message += "+00.00+00.00000000";
         serverHandler.SendToAll(message);
     }
 
@@ -305,10 +295,13 @@ public class ServerScript : MonoBehaviour
 
     public void TankIsDestroyed(int player)
     {
-        PlayerInput playerInput;
-        playerInputs.Remove(player, out playerInput);
-        Destroy(playerInput.gameObject);
-        serverHandler.SendToAll("TID" + player.ToString());
+        if (playerInputs.ContainsKey(player))
+        {
+            PlayerInput playerInput;
+            playerInputs.Remove(player, out playerInput);
+            Destroy(playerInput.gameObject);
+            serverHandler.SendToAll("TID" + player.ToString());
+        }
     }
 
     #endregion Game

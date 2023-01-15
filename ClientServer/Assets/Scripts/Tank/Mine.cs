@@ -160,7 +160,6 @@ public class Mine : MonoBehaviour
     {
         if (col.gameObject.CompareTag("Player"))
         {
-            Destroy(col.transform.parent.gameObject);
             explota();
         }
     }
@@ -184,9 +183,6 @@ public class Mine : MonoBehaviour
         if(serverScript == null)
         {
             GetComponent<AudioSource>().Play();
-        }
-        else
-        {
             spriteRenderer.color = new Color(1f, 1f, 1f, 0f);
             animator.SetBool("boom", true);
         }

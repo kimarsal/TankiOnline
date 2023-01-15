@@ -76,20 +76,21 @@ public class ClientScript : MonoBehaviour
         clientState = ClientState.ChoosingTeam;
     }
 
-    public void ReceiveInfo(string message) //ex: INF312110000
+    public void ReceiveInfo(string message) //ex: INF3112211000000
     {
         playerId = int.Parse(message.Substring(3, 1));
         for (int i = 0; i < 4; i++)
         {
-            int team = int.Parse(message.Substring(4 + i * 2, 1));
-            int tank = int.Parse(message.Substring(5 + i * 2, 1));
+            int player = int.Parse(message.Substring(4 + i * 3, 1));
+            int team = int.Parse(message.Substring(5 + i * 3, 1));
+            int tank = int.Parse(message.Substring(6 + i * 3, 1));
             if (team != 0)
             {
-                AddPlayer(i + 1, team);
+                AddPlayer(player, team);
 
                 if (tank != 0)
                 {
-                    AddTank(i + 1, tank);
+                    AddTank(player, tank);
                 }
             }
         }
@@ -126,6 +127,12 @@ public class ClientScript : MonoBehaviour
     {
         AddPlayer(player, team);
         UpdateTeamButtons();
+
+        if(players.Count == 4 && clientState == ClientState.ChoosingTeam)
+        {
+            chooseTeamContainer.SetActive(false);
+            gameIsFullText.SetActive(true);
+        }
     }
 
     public void ChooseTank(int tank)
@@ -262,15 +269,12 @@ public class ClientScript : MonoBehaviour
 
     private void MoveTanks(float percentageComplete)
     {
-        for (int i = 1; i <= 4; i++)
+        foreach(KeyValuePair<int, PlayerInput> pair in playerInputs)
         {
-            if (playerInputs.ContainsKey(i))
-            {
-                playerInputs[i].tankController.transform.position = Vector3.Lerp(players[i].PreviousPosition, players[i].FuturePosition, percentageComplete);
-                playerInputs[i].tankController.transform.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousBaseAngle, players[i].FutureBaseAngle, percentageComplete));
-                playerInputs[i].tankController.turretParent.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[i].PreviousTurretAngle, players[i].FutureTurretAngle, percentageComplete));
-            }
-        }
+            pair.Value.tankController.transform.position = Vector3.Lerp(players[pair.Key].PreviousPosition, players[pair.Key].FuturePosition, percentageComplete);
+            pair.Value.tankController.transform.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[pair.Key].PreviousBaseAngle, players[pair.Key].FutureBaseAngle, percentageComplete));
+            pair.Value.tankController.turretParent.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(players[pair.Key].PreviousTurretAngle, players[pair.Key].FutureTurretAngle, percentageComplete));
+        } 
     }
 
     private void MoveBullets(float percentageComplete)
@@ -380,25 +384,25 @@ public class ClientScript : MonoBehaviour
     {
         updateDuration = timeSinceLastUpdate;
         timeSinceLastUpdate = 0;
-        for(int i = 0; i < 4; i++)
+        int i = 0;
+        foreach (KeyValuePair<int, PlayerInput> pair in playerInputs)
         {
-            if (playerInputs.ContainsKey(i + 1))
-            {
-                float x = float.Parse(message.Substring(3 + i * 18, 6));
-                float y = float.Parse(message.Substring(9 + i * 18, 6));
-                playerInputs[i + 1].tankController.transform.position = players[i + 1].PreviousPosition = players[i + 1].FuturePosition;
-                players[i + 1].FuturePosition = new Vector2(x, y);
+            float x = float.Parse(message.Substring(3 + i * 18, 6));
+            float y = float.Parse(message.Substring(9 + i * 18, 6));
+            pair.Value.tankController.transform.position = players[pair.Key].PreviousPosition = players[pair.Key].FuturePosition;
+            players[pair.Key].FuturePosition = new Vector2(x, y);
 
-                float baseAngle = float.Parse(message.Substring(15 + i * 18, 3));
-                players[i + 1].PreviousBaseAngle = players[i + 1].FutureBaseAngle;
-                players[i + 1].FutureBaseAngle = baseAngle;
-                playerInputs[i + 1].tankController.transform.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousBaseAngle);
+            float baseAngle = float.Parse(message.Substring(15 + i * 18, 3));
+            players[pair.Key].PreviousBaseAngle = players[pair.Key].FutureBaseAngle;
+            players[pair.Key].FutureBaseAngle = baseAngle;
+            pair.Value.tankController.transform.rotation = Quaternion.Euler(0, 0, players[pair.Key].PreviousBaseAngle);
 
-                float turretAngle = float.Parse(message.Substring(18 + i * 18, 3));
-                players[i + 1].PreviousTurretAngle = players[i + 1].FutureTurretAngle;
-                players[i + 1].FutureTurretAngle = turretAngle;
-                playerInputs[i + 1].tankController.turretParent.rotation = Quaternion.Euler(0, 0, players[i + 1].PreviousTurretAngle);
-            }
+            float turretAngle = float.Parse(message.Substring(18 + i * 18, 3));
+            players[pair.Key].PreviousTurretAngle = players[pair.Key].FutureTurretAngle;
+            players[pair.Key].FutureTurretAngle = turretAngle;
+            pair.Value.tankController.turretParent.rotation = Quaternion.Euler(0, 0, players[pair.Key].PreviousTurretAngle);
+
+            i++;
         }
     }
 
